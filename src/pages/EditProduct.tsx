@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import { trpc, getStoredAdminToken } from "@/providers/trpc";
 import { formatCurrency, getProductMeta, toNumber } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { resolveProductImageUrl } from "@/lib/image";
 import { parseProductOptions, type ProductOption } from "@/types";
 import { ProductOptionsEditor } from "@/components/ProductOptionsEditor";
@@ -123,6 +124,7 @@ export default function EditProduct() {
   // Restaurant form fields
   const [form, setForm] = useState({
     name: "",
+    includedWith: "",
     categoryId: "",
     description: "",
     unitSize: "1 Platter",
@@ -189,6 +191,7 @@ export default function EditProduct() {
 
     setForm({
       name: product.name ?? "",
+      includedWith: (product as any).includedWith ?? "",
       categoryId: String(product.categoryId ?? ""),
       description: product.description ?? "",
       unitSize: product.unitSize ?? "1 Portion",
@@ -319,6 +322,7 @@ export default function EditProduct() {
       categoryId: Number(form.categoryId) === product.categoryId ? undefined : Number(form.categoryId),
       supplierId: form.supplierId ? Number(form.supplierId) : undefined,
       description: form.description.trim() || undefined,
+      includedWith: form.includedWith.trim() || undefined,
       purchasePrice: purchase,
       sellingPrice: selling,
       compareAtPrice: toNumber(form.compareAtPrice) > 0 ? toNumber(form.compareAtPrice) : null,
@@ -344,6 +348,7 @@ export default function EditProduct() {
             mealPrice: opt.mealPrice ? Number(opt.mealPrice) : null,
             onlyPrice: opt.onlyPrice ? Number(opt.onlyPrice) : null,
             image: opt.image || null,
+            includedWith: opt.includedWith?.trim() || null,
           }))
         : [],
     });
@@ -420,47 +425,59 @@ export default function EditProduct() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <Field label="Dish Name" required error={attemptedSubmit ? errors.name : ""}>
-                <Input value={form.name} onChange={(event) => updateField("name", event.target.value)} />
-              </Field>
+              <div className="space-y-4">
+                <Field label="Dish Name" required error={attemptedSubmit ? errors.name : ""} labelClassName="font-bold text-foreground">
+                  <Input value={form.name} onChange={(event) => updateField("name", event.target.value)} />
+                </Field>
 
-              <Field label="Menu Category" required error={attemptedSubmit ? errors.categoryId : ""}>
-                <Select
-                  value={form.categoryId}
-                  onValueChange={(value) => updateField("categoryId", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoriesQuery.isLoading ? (
-                      <SelectItem value="loading" disabled>Loading categories…</SelectItem>
-                    ) : categoriesQuery.isError ? (
-                      <SelectItem value="error" disabled>Could not load categories</SelectItem>
-                    ) : categories.length ? (
-                      categories.map((category) => (
-                        <SelectItem
-                          key={category.id}
-                          value={String(category.id)}
-                          disabled={!category.isActive}
-                        >
-                          {category.name}{category.isActive ? "" : " (inactive)"}
-                        </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="none" disabled>No active categories found</SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </Field>
+                <Field label="What Comes With It" labelClassName="font-normal text-muted-foreground">
+                  <Input
+                    value={form.includedWith}
+                    onChange={(event) => updateField("includedWith", event.target.value)}
+                    placeholder="e.g. With Fries and Juice, 2 Sides and 4 Biscuits"
+                  />
+                </Field>
+              </div>
 
-              <Field label="Serving Portion / Size">
-                <Input
-                  value={form.unitSize}
-                  onChange={(event) => updateField("unitSize", event.target.value)}
-                  placeholder="e.g. 1 Platter with Rice & Salad"
-                />
-              </Field>
+              <div className="space-y-4">
+                <Field label="Menu Category" required error={attemptedSubmit ? errors.categoryId : ""}>
+                  <Select
+                    value={form.categoryId}
+                    onValueChange={(value) => updateField("categoryId", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categoriesQuery.isLoading ? (
+                        <SelectItem value="loading" disabled>Loading categories…</SelectItem>
+                      ) : categoriesQuery.isError ? (
+                        <SelectItem value="error" disabled>Could not load categories</SelectItem>
+                      ) : categories.length ? (
+                        categories.map((category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={String(category.id)}
+                            disabled={!category.isActive}
+                          >
+                            {category.name}{category.isActive ? "" : " (inactive)"}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>No active categories found</SelectItem>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </Field>
+
+                <Field label="Serving Portion / Size">
+                  <Input
+                    value={form.unitSize}
+                    onChange={(event) => updateField("unitSize", event.target.value)}
+                    placeholder="e.g. 1 Platter with Rice & Salad"
+                  />
+                </Field>
+              </div>
 
               <Field label="Spice Level">
                 <Select
@@ -913,6 +930,11 @@ export default function EditProduct() {
                     </div>
                     <div className="space-y-1">
                       <p className="font-semibold text-foreground text-sm">{form.name || "Delicious Halal Dish"}</p>
+                      {form.includedWith && (
+                        <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                          {form.includedWith}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {form.description || "Freshly prepared halal ingredients with signature sauces."}
                       </p>
@@ -952,15 +974,17 @@ function Field({
   required,
   error,
   children,
+  labelClassName,
 }: {
   label: string;
   required?: boolean;
   error?: string;
   children: React.ReactNode;
+  labelClassName?: string;
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium">
+      <Label className={cn("text-xs font-medium", labelClassName)}>
         {label}
         {required && <span className="ml-1 text-destructive">*</span>}
       </Label>

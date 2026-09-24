@@ -141,4 +141,70 @@ describe("ProductDetail Option Selection Header Logic", () => {
     // Scenario 4: Standard product WITH legitimate compare-at price (was $6.00, now $4.25)
     expect(resolveCompareAt(false, null, { unitPrice: "4.25", compareAtPrice: "6.00" }, 4.25)).toBe(6.0);
   });
+
+  it("dynamically updates What Comes With It when switching variants and preserves independence", () => {
+    const rawOptions = JSON.stringify([
+      {
+        id: "opt-sm",
+        name: "SM",
+        price: 3.25,
+        image: "/api/uploads/sm-chicken.png",
+        includedWith: "With Fries and Juice",
+      },
+      {
+        id: "opt-lg",
+        name: "LG",
+        price: 5.99,
+        image: "/api/uploads/lg-chicken.png",
+        includedWith: "With Fries and 2 Biscuits",
+      },
+      {
+        id: "opt-xl",
+        name: "XL",
+        price: 8.99,
+        includedWith: null,
+      },
+    ]);
+
+    const parsed = parseProductOptions(rawOptions);
+    expect(parsed.length).toBe(3);
+
+    const product = {
+      name: "Chicken Meal",
+      includedWith: "Main Dish General Sides",
+    };
+
+    function resolveActiveIncludedWith(optionId: string | null, hasVariants: boolean) {
+      if (hasVariants) {
+        const selected = parsed.find((o) => o.id === optionId) || parsed[0];
+        const val = selected?.includedWith;
+        return typeof val === "string" && val.trim() ? val.trim() : null;
+      }
+      const val = product.includedWith;
+      return typeof val === "string" && val.trim() ? val.trim() : null;
+    }
+
+    // 1. Selecting SM shows SM's "With Fries and Juice"
+    expect(resolveActiveIncludedWith("opt-sm", true)).toBe("With Fries and Juice");
+
+    // 2. Switching to LG dynamically changes to LG's "With Fries and 2 Biscuits"
+    expect(resolveActiveIncludedWith("opt-lg", true)).toBe("With Fries and 2 Biscuits");
+
+    // 3. Switching back to SM returns "With Fries and Juice"
+    expect(resolveActiveIncludedWith("opt-sm", true)).toBe("With Fries and Juice");
+
+    // 4. Selecting XL (no includedWith) returns null (no empty container rendered)
+    expect(resolveActiveIncludedWith("opt-xl", true)).toBeNull();
+
+    // 5. Standard product (hasVariants = false) uses main product includedWith
+    expect(resolveActiveIncludedWith(null, false)).toBe("Main Dish General Sides");
+
+    // 6. Variant images remain fully synchronized
+    const smOpt = parsed.find((o) => o.id === "opt-sm");
+    const lgOpt = parsed.find((o) => o.id === "opt-lg");
+    expect(smOpt?.image).toBe("/api/uploads/sm-chicken.png");
+    expect(lgOpt?.image).toBe("/api/uploads/lg-chicken.png");
+    expect(smOpt?.price).toBe(3.25);
+    expect(lgOpt?.price).toBe(5.99);
+  });
 });

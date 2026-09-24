@@ -1,6 +1,6 @@
 import { getDb } from "./connection";
 import { inventory, products, companies, warehouseStockMovements, type InsertInventory } from "@db/schema";
-import { eq, and, sql, asc } from "drizzle-orm";
+import { eq, and, sql, asc, ne, isNotNull } from "drizzle-orm";
 import { TRPCError } from "@trpc/server";
 
 function withoutUndefined<T extends Record<string, unknown>>(data: T) {
@@ -62,6 +62,9 @@ export async function findAllInventory(filters?: {
   if (filters?.productId) {
     conditions.push(eq(inventory.productId, filters.productId));
   }
+
+  conditions.push(ne(products.status, "archived"));
+  conditions.push(isNotNull(products.id));
 
   const whereClause =
     conditions.length > 0 ? and(...conditions) : undefined;

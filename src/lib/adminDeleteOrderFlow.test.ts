@@ -3,6 +3,7 @@ import { orderRouter } from "../../api/orderRouter";
 import { BUSINESS_OWNER_EMAIL } from "@contracts/roles";
 import { findUserByEmail } from "../../api/queries/users";
 import { findOrderWithDetails } from "../../api/queries/orders";
+import { findBuyerProducts } from "../../api/queries/products";
 
 describe("Admin Delete Order Flow", () => {
   it(
@@ -10,6 +11,12 @@ describe("Admin Delete Order Flow", () => {
     async () => {
     const ownerUser = await findUserByEmail(BUSINESS_OWNER_EMAIL);
     expect(ownerUser).toBeDefined();
+
+    const activeProducts = await findBuyerProducts();
+    expect(activeProducts.length).toBeGreaterThanOrEqual(2);
+
+    const prod1 = activeProducts[0];
+    const prod2 = activeProducts[1];
 
     const publicCaller = orderRouter.createCaller({
       req: new Request("http://localhost:3000/api/trpc"),
@@ -28,8 +35,8 @@ describe("Admin Delete Order Flow", () => {
       shippingState: "California",
       paymentMethod: "cod",
       items: [
-        { productId: 61, quantity: 2 },
-        { productId: 65, quantity: 1 },
+        { productId: prod1.id, quantity: 2 },
+        { productId: prod2.id, quantity: 1 },
       ],
     });
     expect(order1.orderId).toBeGreaterThan(0);
@@ -40,7 +47,7 @@ describe("Admin Delete Order Flow", () => {
       shippingState: "California",
       paymentMethod: "cod",
       items: [
-        { productId: 61, quantity: 1 },
+        { productId: prod1.id, quantity: 1 },
       ],
     });
     expect(order2.orderId).toBeGreaterThan(0);

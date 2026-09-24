@@ -57,6 +57,7 @@ type MarketplaceCategory = {
   name: string;
   slug?: string | null;
   description?: string | null;
+  icon?: string | null;
 };
 
 interface CategoryNavItem {
@@ -74,23 +75,61 @@ const ALL_PRODUCTS_CATEGORY: CategoryNavItem = {
   emoji: "🍽️",
 };
 
-export function getCategoryEmoji(category: { name: string; slug?: string | null }): string {
+export function getCategoryEmoji(category: {
+  name?: string | null;
+  slug?: string | null;
+  icon?: string | null;
+}): string {
+  if (!category) return "🍗";
+
+  // If category.icon is already a unicode emoji, use it directly
+  if (category.icon && /\p{Emoji}/u.test(category.icon)) {
+    return category.icon.trim();
+  }
+
+  // If category.name starts with a unicode emoji, use it
+  if (category.name && /^\p{Emoji}/u.test(category.name.trim())) {
+    const match = category.name.trim().match(/^\p{Emoji}+/u);
+    if (match) return match[0];
+  }
+
+  // Check known icon identifier strings
+  const iconKey = (category.icon || "").toLowerCase().trim();
+  if (iconKey === "chicken" || iconKey === "drumstick" || iconKey === "sparkles" || iconKey === "beef") return "🍗";
+  if (iconKey === "burger") return "🍔";
+  if (iconKey === "wings" || iconKey === "party-wings") return "🍗";
+  if (iconKey === "fries" || iconKey === "boxes") return "🍟";
+  if (iconKey === "drinks" || iconKey === "droplets" || iconKey === "beverage") return "🥤";
+  if (iconKey === "catering" || iconKey === "party" || iconKey === "package") return "🎉";
+  if (iconKey === "kids" || iconKey === "bento") return "🍱";
+  if (iconKey === "sandwich") return "🥪";
+  if (iconKey === "fiery" || iconKey === "chili" || iconKey === "flame" || iconKey === "hot") return "🌶️";
+  if (iconKey === "platter") return "🍗";
+
   const text = `${category.slug || ""} ${category.name || ""}`.toLowerCase();
 
-  if (text.includes("platter")) return "🍛";
-  if (text.includes("gyro") || text.includes("wrap") || text.includes("pita")) return "🌯";
+  // Keyword matches aligned with Tex's Chicken & Burgers menu offerings
+  if (text.includes("fiery") || text.includes("spicy") || text.includes("chili") || text.includes("hot wing") || text.includes("flame")) return "🌶️";
   if (text.includes("burger")) return "🍔";
-  if (text.includes("wing")) return "🍗";
-  if (text.includes("rice bowl") || text.includes("bowl") || text.includes("rice")) return "🍚";
   if (text.includes("sandwich") || text.includes("sub") || text.includes("philly") || text.includes("cheesesteak")) return "🥪";
+  if (text.includes("tender") || text.includes("strip") || text.includes("nugget")) return "🍗";
+  if (text.includes("wing")) return "🍗";
+  if (text.includes("kid")) return "🍱";
+  if (text.includes("family")) return "🍗";
+  if (text.includes("catering") || text.includes("party") || text.includes("feast")) return "🎉";
+  if (text.includes("chicken") || text.includes("poultry") || text.includes("fried chicken") || text.includes("crispy")) return "🍗";
+  if (text.includes("gyro") || text.includes("wrap") || text.includes("pita")) return "🌯";
+  if (text.includes("rice bowl") || text.includes("bowl") || text.includes("rice")) return "🍚";
   if (text.includes("salad")) return "🥗";
-  if (text.includes("side") || text.includes("fries") || text.includes("fry")) return "🍟";
-  if (text.includes("beverage") || text.includes("drink") || text.includes("soda") || text.includes("juice")) return "🥤";
-  if (text.includes("dessert") || text.includes("sweet") || text.includes("baklava") || text.includes("cake")) return "🍰";
-  if (text.includes("catering") || text.includes("party") || text.includes("feast")) return "🍱";
+  if (text.includes("side") || text.includes("fries") || text.includes("fry") || text.includes("ring")) return "🍟";
+  if (text.includes("beverage") || text.includes("drink") || text.includes("soda") || text.includes("juice") || text.includes("shake") || text.includes("tea") || text.includes("water")) return "🥤";
+  if (text.includes("dessert") || text.includes("sweet") || text.includes("baklava") || text.includes("cake") || text.includes("cookie")) return "🍰";
   if (text.includes("falafel")) return "🧆";
-  if (text.includes("sauce")) return "🥣";
-  return "🍽️";
+  if (text.includes("sauce") || text.includes("dip")) return "🥣";
+  if (text.includes("combo") || text.includes("meal")) return "🍱";
+  if (text.includes("platter")) return "🍗";
+
+  return "🍗";
 }
 
 export function toCategoryNavItem(category: MarketplaceCategory): CategoryNavItem {
@@ -98,7 +137,7 @@ export function toCategoryNavItem(category: MarketplaceCategory): CategoryNavIte
     key: `category-${category.id}`,
     name: category.name,
     icon: Utensils,
-    emoji: getCategoryEmoji(category),
+    emoji: getCategoryEmoji(category) || "🍗",
     categoryId: category.id,
   };
 }
@@ -245,7 +284,7 @@ export default function LandingPage() {
 
         {/* Scrollable Categories List */}
         <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-[18px] pb-2">
-          <nav className="flex flex-col gap-1.5">
+          <nav className="flex flex-col gap-1">
             {sidebarCategories.map((item) => {
               const isActive = selectedCategoryKey === item.key;
               const isAllProducts = item.key === "all";
@@ -260,16 +299,16 @@ export default function LandingPage() {
                         grid.scrollIntoView({ behavior: "smooth" });
                       }
                     }}
-                    className={`w-full flex items-start gap-1.5 px-1.5 xs:px-2 py-1.5 xs:py-2 text-left transition-colors border-l-2 h-[42px] xs:h-[46px] shrink-0 ${
+                    className={`w-full flex items-start gap-1.5 px-1.5 xs:px-2 py-1.5 xs:py-2 text-left transition-colors border-l-2 ${
                       isActive
                         ? "border-emerald-400 bg-white/10 text-white font-bold"
                         : "border-transparent bg-transparent text-emerald-100/80 hover:text-white hover:bg-white/5 font-medium"
                     }`}
                   >
-                    <span className="w-4 h-[14px] xs:h-[15px] flex items-center justify-center shrink-0 select-none text-xs xs:text-sm leading-none">
-                      {item.emoji}
+                    <span className="w-4 shrink-0 text-center select-none text-xs xs:text-sm leading-tight mt-0.5">
+                      {item.emoji || "🍗"}
                     </span>
-                    <span className="flex-1 min-w-0 h-[28px] xs:h-[30px] block text-[11px] xs:text-xs tracking-tight leading-[14px] xs:leading-[15px] break-words whitespace-normal overflow-hidden">
+                    <span className="flex-1 min-w-0 text-[11px] xs:text-xs tracking-tight leading-snug break-words whitespace-normal line-clamp-2">
                       {item.name}
                     </span>
                   </button>
@@ -333,7 +372,7 @@ export default function LandingPage() {
 
         {/* Scrollable Categories List */}
         <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-[18px] pb-3">
-          <nav className="flex flex-col gap-1.5 lg:gap-2">
+          <nav className="flex flex-col gap-1 lg:gap-1.5">
             {sidebarCategories.map((item) => {
               const isActive = selectedCategoryKey === item.key;
               const isAllProducts = item.key === "all";
@@ -348,16 +387,16 @@ export default function LandingPage() {
                         grid.scrollIntoView({ behavior: "smooth" });
                       }
                     }}
-                    className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors border-l-2 h-[52px] lg:h-[56px] shrink-0 ${
+                    className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors border-l-2 rounded-r-md ${
                       isActive
                         ? "border-emerald-400 bg-white/10 text-white font-bold"
                         : "border-transparent bg-transparent text-emerald-100/80 hover:text-white hover:bg-white/5 font-medium"
                     }`}
                   >
-                    <span className="w-6 lg:w-7 h-[18px] lg:h-[20px] flex items-center justify-center shrink-0 select-none text-base lg:text-lg leading-none">
-                      {item.emoji}
+                    <span className="w-6 lg:w-7 shrink-0 text-center select-none text-base lg:text-lg leading-tight mt-0.5">
+                      {item.emoji || "🍗"}
                     </span>
-                    <span className="flex-1 min-w-0 h-[36px] lg:h-[40px] block text-sm lg:text-[15px] leading-[18px] lg:leading-[20px] break-words whitespace-normal overflow-hidden">
+                    <span className="flex-1 min-w-0 text-sm lg:text-[15px] leading-snug break-words whitespace-normal line-clamp-2">
                       {item.name}
                     </span>
                   </button>

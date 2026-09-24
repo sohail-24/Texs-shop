@@ -1,9 +1,9 @@
 import path from "node:path";
 import fs from "node:fs/promises";
 import { existsSync } from "node:fs";
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, ne } from "drizzle-orm";
 import { getDb } from "./connection";
-import { productImages } from "@db/schema";
+import { productImages, products } from "@db/schema";
 
 export interface DurableProductImage {
   filename: string;
@@ -47,6 +47,15 @@ export async function saveProductImageDurable(input: {
         updatedAt: new Date(),
       },
     });
+}
+
+export async function deleteProductImageDurable(filename: string): Promise<void> {
+  const db = getDb();
+  try {
+    await db.delete(productImages).where(eq(productImages.filename, filename));
+  } catch (err) {
+    console.warn(`[durable-images] Could not delete image "${filename}" from database:`, err);
+  }
 }
 
 export async function findProductImageByFilename(
@@ -127,13 +136,86 @@ function detectMimeType(filePath: string): string {
 }
 
 /**
+ * Standard brand and marketing assets that should always be preserved
+ */
+const BRAND_ASSETS = new Set([
+  "1-topbun.png",
+  "2-tex'sspecialsauce.png",
+  "3-freshlettuce.png",
+  "4-tomatoslices.png",
+  "5-pickels.png",
+  "6-onions.png",
+  "7-cheeseslice.png",
+  "8-chickenpatty.png",
+  "9-tex'sspecialsauce.png",
+  "10-bottombun.png",
+  "burger-category.png",
+  "chicken-meals.png",
+  "full-image.png",
+  "juices.png",
+  "sides.png",
+  "tex's-images.png",
+  "logo.png",
+]);
+
+/**
  * Migrates local product images from disk into durable Neon PostgreSQL storage.
- * Ensures existing product images survive any container restart or filesystem wipe.
+ * Only migrates images that are genuinely in use by active Tex's products or branding.
  */
 export async function migrateLocalImagesToDurable(): Promise<{
   migrated: string[];
   count: number;
 }> {
+  const db = getDb();
+
+  // Find all active products and their referenced images
+  const activeProducts = await db
+    .select({
+      id: products.id,
+      image: products.image,
+      images: products.images,
+      options: products.options,
+    })
+    .from(products)
+    .where(ne(products.status, "archived"))
+    .catch(() => []);
+
+  const activeImageToProductId = new Map<string, number>();
+
+  for (const prod of activeProducts) {
+    if (prod.image) {
+      activeImageToProductId.set(extractFilename(prod.image).toLowerCase(), prod.id);
+    }
+    if (prod.images) {
+      try {
+        const parsed = JSON.parse(prod.images);
+        if (Array.isArray(parsed)) {
+          for (const item of parsed) {
+            if (typeof item === "string") {
+              activeImageToProductId.set(extractFilename(item).toLowerCase(), prod.id);
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    if (prod.options) {
+      try {
+        const parsed = JSON.parse(prod.options);
+        if (Array.isArray(parsed)) {
+          for (const opt of parsed) {
+            if (opt?.image && typeof opt.image === "string") {
+              activeImageToProductId.set(extractFilename(opt.image).toLowerCase(), prod.id);
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+  }
+
   const searchDirs = [
     path.resolve(process.cwd(), "uploads", "products"),
     path.resolve(process.cwd(), "public", "products"),
@@ -149,19 +231,19 @@ export async function migrateLocalImagesToDurable(): Promise<{
       for (const file of files) {
         if (!/\.(png|jpe?g|webp|svg|gif)$/i.test(file)) continue;
 
+        const lowerFile = file.toLowerCase();
+        const productId = activeImageToProductId.get(lowerFile) ?? null;
+        const isBrandAsset = BRAND_ASSETS.has(lowerFile);
+
+        // Only migrate files that belong to an active product or brand asset
+        if (!productId && !isBrandAsset) continue;
+
         const filePath = path.join(dir, file);
         const stats = await fs.stat(filePath);
         if (!stats.isFile() || stats.size === 0) continue;
 
         const fileBytes = await fs.readFile(filePath);
         const mimeType = detectMimeType(file);
-
-        let productId: number | null = null;
-        if (file.includes("7dfe9590") || file === "french-fries.png") {
-          productId = 61; // French Fries
-        } else if (file.includes("e1041cb3") || file.includes("3509f65f")) {
-          productId = 65; // Mac N'Cheese
-        }
 
         await saveProductImageDurable({
           filename: file,
@@ -175,24 +257,6 @@ export async function migrateLocalImagesToDurable(): Promise<{
       }
     } catch (err) {
       console.error(`[durable-images] Error reading directory ${dir}:`, err);
-    }
-  }
-
-  // Also ensure alias for product-3509f65f-efcc-4cca-9a75-e6466f1d1ffd.png points to Mac N'Cheese image
-  const macNCheeseFile = path.resolve(process.cwd(), "uploads", "products", "product-e1041cb3-332d-4286-9e70-62f2e100b916.png");
-  if (existsSync(macNCheeseFile)) {
-    try {
-      const macBytes = await fs.readFile(macNCheeseFile);
-      await saveProductImageDurable({
-        filename: "product-3509f65f-efcc-4cca-9a75-e6466f1d1ffd.png",
-        mimeType: "image/png",
-        data: macBytes,
-        size: macBytes.length,
-        productId: 65,
-      });
-      migrated.push("product-3509f65f-efcc-4cca-9a75-e6466f1d1ffd.png");
-    } catch (err) {
-      console.warn("[durable-images] Could not alias product-3509f65f:", err);
     }
   }
 

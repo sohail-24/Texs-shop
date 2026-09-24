@@ -29,6 +29,13 @@
       "when": 1786280000000,
       "tag": "0003_durable_product_images",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786290000000,
+      "tag": "0004_product_included_with",
+      "breakpoints": true
     }
   ]
 }

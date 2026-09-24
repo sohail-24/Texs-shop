@@ -52,6 +52,7 @@ export function ProductOptionsEditor({
       mealPrice: null,
       onlyPrice: null,
       image: null,
+      includedWith: null,
     };
     onChange([...options, newOption]);
   };
@@ -334,78 +335,92 @@ export function ProductOptionsEditor({
                     </div>
 
                     {/* Inputs Grid */}
-                    <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-                      <div>
-                        <Label className="text-[11px] text-muted-foreground">Option Label *</Label>
-                        <Input
-                          value={opt.name}
-                          onChange={(e) => updateOption(opt.id, { name: e.target.value })}
-                          placeholder="e.g. 2 PC, Classic, 15 Wings"
-                          className="h-8 text-xs font-medium mt-1"
-                        />
-                      </div>
-
-                      <div>
-                        <Label className="text-[11px] text-muted-foreground">Primary Price ($) *</Label>
-                        <div className="relative mt-1">
-                          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                            $
-                          </span>
+                    <div className="flex-1 min-w-0 space-y-3 w-full">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-[11px] font-bold text-foreground">Option Label *</Label>
                           <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={opt.price ?? ""}
-                            onChange={(e) =>
-                              updateOption(opt.id, { price: e.target.value ? Number(e.target.value) : 0 })
-                            }
-                            placeholder="9.99"
-                            className="h-8 text-xs font-medium pl-6"
+                            value={opt.name}
+                            onChange={(e) => updateOption(opt.id, { name: e.target.value })}
+                            placeholder="e.g. SM, 2 PC, Classic"
+                            className="h-8 text-xs font-medium mt-1"
+                          />
+                        </div>
+
+                        <div>
+                          <Label className="text-[11px] font-normal text-muted-foreground">What Comes With It</Label>
+                          <Input
+                            value={opt.includedWith ?? ""}
+                            onChange={(e) => updateOption(opt.id, { includedWith: e.target.value })}
+                            placeholder="e.g. With Fries and Juice"
+                            className="h-8 text-xs mt-1"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <Label className="text-[11px] text-muted-foreground">Combo Meal Price ($)</Label>
-                        <div className="relative mt-1">
-                          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                            $
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={opt.mealPrice ?? ""}
-                            onChange={(e) =>
-                              updateOption(opt.id, {
-                                mealPrice: e.target.value ? Number(e.target.value) : null,
-                              })
-                            }
-                            placeholder="Optional (e.g. 12.99)"
-                            className="h-8 text-xs pl-6"
-                          />
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div>
+                          <Label className="text-[11px] font-bold text-foreground">Primary Price ($) *</Label>
+                          <div className="relative mt-1">
+                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                              $
+                            </span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={opt.price ?? ""}
+                              onChange={(e) =>
+                                updateOption(opt.id, { price: e.target.value ? Number(e.target.value) : 0 })
+                              }
+                              placeholder="9.99"
+                              className="h-8 text-xs font-medium pl-6"
+                            />
+                          </div>
                         </div>
-                      </div>
 
-                      <div>
-                        <Label className="text-[11px] text-muted-foreground">Only Price ($)</Label>
-                        <div className="relative mt-1">
-                          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                            $
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            value={opt.onlyPrice ?? ""}
-                            onChange={(e) =>
-                              updateOption(opt.id, {
-                                onlyPrice: e.target.value ? Number(e.target.value) : null,
-                              })
-                            }
-                            placeholder="Optional (e.g. 8.99)"
-                            className="h-8 text-xs pl-6"
-                          />
+                        <div>
+                          <Label className="text-[11px] font-normal text-muted-foreground">Combo Meal Price ($)</Label>
+                          <div className="relative mt-1">
+                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                              $
+                            </span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={opt.mealPrice ?? ""}
+                              onChange={(e) =>
+                                updateOption(opt.id, {
+                                  mealPrice: e.target.value ? Number(e.target.value) : null,
+                                })
+                              }
+                              placeholder="Optional (e.g. 12.99)"
+                              className="h-8 text-xs pl-6"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-[11px] font-normal text-muted-foreground">Only Price ($)</Label>
+                          <div className="relative mt-1">
+                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                              $
+                            </span>
+                            <Input
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              value={opt.onlyPrice ?? ""}
+                              onChange={(e) =>
+                                updateOption(opt.id, {
+                                  onlyPrice: e.target.value ? Number(e.target.value) : null,
+                                })
+                              }
+                              placeholder="Optional (e.g. 8.99)"
+                              className="h-8 text-xs pl-6"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -422,7 +437,7 @@ export function ProductOptionsEditor({
               </p>
               <p className="text-[11px] text-emerald-800/80 dark:text-emerald-400 mt-1">
                 Customers on the product page will see radio selection buttons for each option (
-                {options.map((o) => `${o.name}: ${formatCurrency(o.price)}`).join(", ")}) and cannot add the item to cart without selecting their option.
+                {options.map((o) => `${o.name}${o.includedWith ? ` [${o.includedWith}]` : ''}: ${formatCurrency(o.price)}`).join(", ")}) and cannot add the item to cart without selecting their option.
               </p>
             </div>
           </div>

@@ -372,6 +372,7 @@ export const products = pgTable(
     slug: varchar("slug", { length: 255 }).notNull(),
     description: text("description"),
     shortDescription: varchar("shortDescription", { length: 500 }),
+    includedWith: text("includedWith"),
     // Category
     categoryId: bigint("categoryId", { mode: "number" }).notNull(),
     // Supplier (the company selling this product)

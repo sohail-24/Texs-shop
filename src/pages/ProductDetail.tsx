@@ -60,6 +60,15 @@ export default function ProductDetail() {
     return productOptions.find((opt) => opt.id === selectedOptionId) || productOptions[0];
   }, [hasOptions, productOptions, selectedOptionId]);
 
+  const activeIncludedWith = useMemo(() => {
+    if (hasOptions) {
+      const val = selectedOption?.includedWith;
+      return typeof val === "string" && val.trim() ? val.trim() : null;
+    }
+    const val = product?.includedWith;
+    return typeof val === "string" && val.trim() ? val.trim() : null;
+  }, [hasOptions, selectedOption?.includedWith, product?.includedWith]);
+
   const currentImage = (selectedOption?.image && selectedOption.image.trim()) || product?.image || null;
 
   useEffect(() => {
@@ -233,6 +242,12 @@ export default function ProductDetail() {
             <h1 className="text-3xl font-semibold tracking-tight">{product.name}</h1>
             <p className="mt-1 text-sm text-muted-foreground">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
           </div>
+          {activeIncludedWith && (
+            <div className="flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-3 py-2 text-xs sm:text-sm font-medium text-emerald-900 dark:text-emerald-200">
+              <span className="font-semibold text-emerald-700 dark:text-emerald-400">What Comes With It:</span>
+              <span>{activeIncludedWith}</span>
+            </div>
+          )}
           <div className="flex flex-wrap items-baseline gap-3">
             <span className="text-3xl font-semibold text-emerald-700">{formatCurrency(price)}</span>
             {resolvedOptionLabel ? (
@@ -302,6 +317,11 @@ export default function ProductDetail() {
                         </div>
                         <div>
                           <p className="font-semibold text-sm text-foreground leading-tight">{opt.name}</p>
+                          {opt.includedWith ? (
+                            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-0.5 line-clamp-1">
+                              {opt.includedWith}
+                            </p>
+                          ) : null}
                           {opt.mealPrice && opt.onlyPrice ? (
                             <p className="text-[11px] text-muted-foreground mt-0.5">Meal & Only available</p>
                           ) : null}
@@ -362,6 +382,9 @@ export default function ProductDetail() {
           <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
             <p><span className="font-medium text-foreground">Serving / Portion:</span> {resolvedOptionLabel || product.unitSize || "1 Order"}</p>
             <p><span className="font-medium text-foreground">Category:</span> {product.categoryName ?? "Halal Food"}</p>
+            {activeIncludedWith && (
+              <p><span className="font-medium text-foreground">What Comes With It:</span> {activeIncludedWith}</p>
+            )}
             {product.origin && (
               <p><span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}</p>
             )}

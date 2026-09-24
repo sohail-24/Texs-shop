@@ -6,6 +6,7 @@ export type ProductOption = {
   mealPrice?: number | null; // Optional MEAL price
   onlyPrice?: number | null; // Optional ONLY price
   image?: string | null; // Variant specific image
+  includedWith?: string | null; // Variant specific "What Comes With It"
 };
 
 export const ProductOption = {} as unknown as ProductOption;
@@ -24,6 +25,7 @@ export function parseProductOptions(value?: unknown): ProductOption[] {
         const onlyPrice = item.onlyPrice != null && Number(item.onlyPrice) > 0 ? Number(item.onlyPrice) : null;
         const compareAtPrice = item.compareAtPrice != null && Number(item.compareAtPrice) > 0 ? Number(item.compareAtPrice) : null;
         const image = typeof item.image === "string" && item.image.trim() ? item.image.trim() : null;
+        const includedWith = typeof item.includedWith === "string" && item.includedWith.trim() ? item.includedWith.trim() : null;
         
         if (!name && price <= 0 && !mealPrice && !onlyPrice) return null;
 
@@ -35,6 +37,7 @@ export function parseProductOptions(value?: unknown): ProductOption[] {
           mealPrice,
           onlyPrice,
           image,
+          includedWith,
         } as ProductOption;
       })
       .filter((opt): opt is ProductOption => opt !== null);

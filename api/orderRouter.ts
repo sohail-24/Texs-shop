@@ -485,6 +485,12 @@ export const orderRouter = createRouter({
             message: "Cart products do not match the selected supplier.",
           });
         }
+        if (product.status === "archived" || !product.marketplaceVisible) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: `${product.name} is no longer available.`,
+          });
+        }
 
         let inventoryRecord;
         try {
@@ -494,8 +500,11 @@ export const orderRouter = createRouter({
             product.name,
             item.quantity
           );
-        } catch {
-          // If inventory record check failed or was missing, ensure an inventory row exists
+        } catch (validationErr) {
+          if (product.status !== "active" || !product.marketplaceVisible) {
+            throw validationErr;
+          }
+          // If inventory record check failed or was missing for an active product, ensure an inventory row exists
           try {
             const db = getDb();
             const [newInv] = await db

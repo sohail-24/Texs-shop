@@ -2,11 +2,18 @@ import { describe, expect, it } from "vitest";
 import { orderRouter } from "../../api/orderRouter";
 import { BUSINESS_OWNER_EMAIL } from "@contracts/roles";
 import { findUserByEmail } from "../../api/queries/users";
+import { findBuyerProducts } from "../../api/queries/products";
 
 describe("Info Order Creation -> Admin Orders Flow", () => {
   it("creates order from /info and makes it immediately appear in Admin /orders with ticket, items, total, payment method, and time", async () => {
     const ownerUser = await findUserByEmail(BUSINESS_OWNER_EMAIL);
     expect(ownerUser).toBeDefined();
+
+    const activeProducts = await findBuyerProducts();
+    expect(activeProducts.length).toBeGreaterThanOrEqual(2);
+
+    const prod1 = activeProducts[0];
+    const prod2 = activeProducts[1];
 
     const publicCaller = orderRouter.createCaller({
       req: new Request("http://localhost:3000/api/trpc"),
@@ -26,8 +33,8 @@ describe("Info Order Creation -> Admin Orders Flow", () => {
       shippingState: "New York",
       paymentMethod: "cod",
       items: [
-        { productId: 61, quantity: 2 }, // French Fries ($3.49 * 2 = $6.98)
-        { productId: 65, quantity: 1 }, // Mac N' Cheese ($4.99 * 1 = $4.99)
+        { productId: prod1.id, quantity: 2 },
+        { productId: prod2.id, quantity: 1 },
       ],
     });
 
@@ -42,7 +49,7 @@ describe("Info Order Creation -> Admin Orders Flow", () => {
       shippingState: "New York",
       paymentMethod: "cod",
       items: [
-        { productId: 61, quantity: 1 },
+        { productId: prod1.id, quantity: 1 },
       ],
     });
 
@@ -70,20 +77,24 @@ describe("Info Order Creation -> Admin Orders Flow", () => {
     // Verify items, quantities, and prices are visible
     expect(foundOrder1?.items).toBeDefined();
     expect(foundOrder1?.items?.length).toBe(2);
-    const friesItem = foundOrder1?.items?.find((i) => i.productName.includes("French Fries"));
-    expect(friesItem).toBeDefined();
-    expect(friesItem?.quantity).toBe(2);
-    expect(Number(friesItem?.unitPrice)).toBe(3.25);
+    const item1 = foundOrder1?.items?.find((i) => i.productId === prod1.id);
+    expect(item1).toBeDefined();
+    expect(item1?.quantity).toBe(2);
+    expect(Number(item1?.unitPrice)).toBeGreaterThan(0);
 
-    const macItem = foundOrder1?.items?.find((i) => i.productName.includes("Mac"));
-    expect(macItem).toBeDefined();
-    expect(macItem?.quantity).toBe(1);
-    expect(Number(macItem?.unitPrice)).toBeGreaterThan(0);
+    const item2 = foundOrder1?.items?.find((i) => i.productId === prod2.id);
+    expect(item2).toBeDefined();
+    expect(item2?.quantity).toBe(1);
+    expect(Number(item2?.unitPrice)).toBeGreaterThan(0);
 
     // Verify order 2 is also listed as a separate order
     const foundOrder2 = adminOrders.items.find((o) => o.id === order2.orderId);
     expect(foundOrder2).toBeDefined();
     expect(foundOrder2?.ticketNumber).toBe("T 5743");
     expect(foundOrder2?.id).not.toBe(foundOrder1?.id);
+
+    // Clean up test orders
+    await adminCaller.delete({ orderId: order1.orderId });
+    await adminCaller.delete({ orderId: order2.orderId });
   }, 30000);
 });

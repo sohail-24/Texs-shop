@@ -113,13 +113,14 @@ async function listProducts(
 
   const orderByCol = productOrderBy(filters);
 
-  return db
+  const rows = await db
     .select({
       id: products.id,
       name: products.name,
       slug: products.slug,
       description: products.description,
       shortDescription: products.shortDescription,
+      includedWith: products.includedWith,
       categoryId: products.categoryId,
       supplierId: products.supplierId,
       unitPrice: products.unitPrice,
@@ -219,6 +220,7 @@ async function findProductDetailBySlug(slug: string, visibilityConditions: SQL[]
       slug: products.slug,
       description: products.description,
       shortDescription: products.shortDescription,
+      includedWith: products.includedWith,
       categoryId: products.categoryId,
       supplierId: products.supplierId,
       unitPrice: products.unitPrice,
@@ -440,10 +442,14 @@ export async function findProductMarketplaceById(id: number) {
 }
 
 export async function deleteProduct(id: number) {
-  await getDb()
+  const db = getDb();
+  await db
     .update(products)
     .set({ status: "archived", updatedAt: new Date() })
     .where(eq(products.id, id));
+  await db
+    .delete(inventory)
+    .where(eq(inventory.productId, id));
 }
 
 export async function getProductStats() {

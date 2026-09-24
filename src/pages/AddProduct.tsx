@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { toast } from "sonner";
 import { trpc, getStoredAdminToken } from "@/providers/trpc";
 import { formatCurrency, toNumber } from "@/lib/i18n";
+import { cn } from "@/lib/utils";
 import { resolveProductImageUrl } from "@/lib/image";
 import type { ProductOption } from "@/types";
 import { ProductOptionsEditor } from "@/components/ProductOptionsEditor";
@@ -90,6 +91,7 @@ export default function AddProduct() {
   // Restaurant menu form fields
   const [form, setForm] = useState({
     name: "",
+    includedWith: "",
     categoryId: "",
     description: "",
     unitSize: "1 Platter",
@@ -292,6 +294,7 @@ export default function AddProduct() {
       categoryId: Number(form.categoryId),
       supplierId: form.supplierId ? Number(form.supplierId) : undefined,
       description: form.description.trim() || undefined,
+      includedWith: form.includedWith.trim() || undefined,
       purchasePrice: purchase,
       sellingPrice: selling,
       compareAtPrice: toNumber(form.compareAtPrice) > 0 ? toNumber(form.compareAtPrice) : null,
@@ -321,6 +324,7 @@ export default function AddProduct() {
             mealPrice: opt.mealPrice ? Number(opt.mealPrice) : null,
             onlyPrice: opt.onlyPrice ? Number(opt.onlyPrice) : null,
             image: opt.image || null,
+            includedWith: opt.includedWith?.trim() || null,
           }))
         : [],
     });
@@ -379,45 +383,57 @@ export default function AddProduct() {
               </CardTitle>
             </CardHeader>
             <CardContent className="grid gap-4 md:grid-cols-2">
-              <Field label="Dish Name" required error={attemptedSubmit ? errors.name : ""}>
-                <Input
-                  value={form.name}
-                  onChange={(event) => updateField("name", event.target.value)}
-                  placeholder="e.g. Chicken Over Rice Platter, Lamb Gyro Pita"
-                />
-              </Field>
+              <div className="space-y-4">
+                <Field label="Dish Name" required error={attemptedSubmit ? errors.name : ""} labelClassName="font-bold text-foreground">
+                  <Input
+                    value={form.name}
+                    onChange={(event) => updateField("name", event.target.value)}
+                    placeholder="e.g. 6 PCS Nuggets, 8 PC Chicken"
+                  />
+                </Field>
 
-              <Field label="Menu Category" required error={attemptedSubmit ? errors.categoryId : ""}>
-                <Select
-                  value={form.categoryId}
-                  onValueChange={(value) => updateField("categoryId", value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select menu category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {activeCategories.length ? (
-                      activeCategories.map((category) => (
-                        <SelectItem key={category.id} value={String(category.id)}>
-                          {category.name}
+                <Field label="What Comes With It" labelClassName="font-normal text-muted-foreground">
+                  <Input
+                    value={form.includedWith}
+                    onChange={(event) => updateField("includedWith", event.target.value)}
+                    placeholder="e.g. With Fries and Juice, 2 Sides and 4 Biscuits"
+                  />
+                </Field>
+              </div>
+
+              <div className="space-y-4">
+                <Field label="Menu Category" required error={attemptedSubmit ? errors.categoryId : ""}>
+                  <Select
+                    value={form.categoryId}
+                    onValueChange={(value) => updateField("categoryId", value)}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select menu category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {activeCategories.length ? (
+                        activeCategories.map((category) => (
+                          <SelectItem key={category.id} value={String(category.id)}>
+                            {category.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="none" disabled>
+                          No categories found
                         </SelectItem>
-                      ))
-                    ) : (
-                      <SelectItem value="none" disabled>
-                        No categories found
-                      </SelectItem>
-                    )}
-                  </SelectContent>
-                </Select>
-              </Field>
+                      )}
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-              <Field label="Serving Portion / Size">
-                <Input
-                  value={form.unitSize}
-                  onChange={(event) => updateField("unitSize", event.target.value)}
-                  placeholder="e.g. 1 Platter with Rice & Salad, 1 Pita Wrap, 6 pcs"
-                />
-              </Field>
+                <Field label="Serving Portion / Size">
+                  <Input
+                    value={form.unitSize}
+                    onChange={(event) => updateField("unitSize", event.target.value)}
+                    placeholder="e.g. 1 Platter with Rice & Salad, 1 Pita Wrap, 6 pcs"
+                  />
+                </Field>
+              </div>
 
               <Field label="Spice Level">
                 <Select
@@ -828,6 +844,11 @@ export default function AddProduct() {
                     </div>
                     <div className="space-y-1">
                       <p className="font-semibold text-foreground text-sm">{form.name || "Delicious Halal Dish"}</p>
+                      {form.includedWith && (
+                        <p className="text-xs font-medium text-emerald-700 dark:text-emerald-400">
+                          {form.includedWith}
+                        </p>
+                      )}
                       <p className="text-xs text-muted-foreground line-clamp-2">
                         {form.description || "Freshly prepared halal ingredients with signature sauces."}
                       </p>
@@ -856,15 +877,17 @@ function Field({
   required,
   error,
   children,
+  labelClassName,
 }: {
   label: string;
   required?: boolean;
   error?: string;
   children: React.ReactNode;
+  labelClassName?: string;
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium">
+      <Label className={cn("text-xs font-medium", labelClassName)}>
         {label}
         {required && <span className="ml-1 text-destructive">*</span>}
       </Label>

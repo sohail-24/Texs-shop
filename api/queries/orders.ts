@@ -173,6 +173,7 @@ async function findOrdersForCompany(
             .select({
               id: orderItems.id,
               orderId: orderItems.orderId,
+              productId: orderItems.productId,
               productName: orderItems.productName,
               quantity: orderItems.quantity,
               unitPrice: orderItems.unitPrice,

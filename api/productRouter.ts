@@ -61,6 +61,7 @@ const productOptionSchema = z.object({
   mealPrice: z.number().min(0).optional().nullable(),
   onlyPrice: z.number().min(0).optional().nullable(),
   image: z.string().trim().max(2048).optional().nullable(),
+  includedWith: z.string().trim().max(500).optional().nullable(),
 });
 
 const productMutationSchema = z.object({
@@ -70,6 +71,7 @@ const productMutationSchema = z.object({
   categoryId: z.number().int().positive("Category is required."),
   supplierId: z.number().int().positive().optional(),
   description: z.string().trim().max(5000).optional().or(z.literal("").transform(() => undefined)),
+  includedWith: z.string().trim().max(500).optional().nullable(),
   purchasePrice: z.number().positive("Purchase price must be greater than zero."),
   wholesalePrice: z.number().positive("Wholesale price must be greater than zero.").optional(),
   sellingPrice: z.number().min(0, "Selling price must be greater than or equal to zero."),
@@ -316,6 +318,7 @@ export const productRouter = createRouter({
             slug: `${slugify(input.name)}-${input.sku.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
             description: input.description,
             shortDescription: input.description?.slice(0, 220),
+            includedWith: input.includedWith?.trim() || null,
             categoryId: input.categoryId,
             supplierId,
             unitPrice: effectiveSellingPrice.toFixed(2),
@@ -493,6 +496,7 @@ export const productRouter = createRouter({
       slug,
       description: input.description,
       shortDescription: input.description?.slice(0, 220),
+      includedWith: input.includedWith !== undefined ? (input.includedWith?.trim() || null) : undefined,
       categoryId: input.categoryId,
       supplierId: input.supplierId,
       unitPrice: effectiveSellingPrice !== undefined ? effectiveSellingPrice.toFixed(2) : undefined,

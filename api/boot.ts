@@ -66,7 +66,7 @@ try {
 app.get("/health", (c) => {
   return c.json({
     status: "ok",
-    service: "FreshFlow",
+    service: "Tex's Chicken & Burgers",
     version: pkgVersion,
     timestamp: new Date().toISOString(),
   });
@@ -91,12 +91,14 @@ app.get("/api/uploads/:filename", async (c) => {
     try {
       if (existsSync(candidatePath)) {
         const image = await readFile(candidatePath);
-        return new Response(image, {
-          headers: {
-            "Content-Type": contentTypeFor(filename),
-            "Cache-Control": "public, max-age=31536000, immutable",
-          },
-        });
+        if (image.length > 0) {
+          return new Response(image, {
+            headers: {
+              "Content-Type": contentTypeFor(filename),
+              "Cache-Control": "public, max-age=31536000, immutable",
+            },
+          });
+        }
       }
     } catch {
       // Continue searching candidate paths
