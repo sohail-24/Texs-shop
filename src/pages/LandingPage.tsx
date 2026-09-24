@@ -12,9 +12,6 @@ import {
   Star,
   UserRound,
   CheckCircle2,
-  ShieldCheck,
-  ChevronLeft,
-  ChevronRight,
   Minus,
   Plus,
   ReceiptText,
@@ -603,7 +600,7 @@ export default function LandingPage() {
         <main className="flex-1 p-1.5 xs:p-2 sm:p-5 md:p-6 lg:p-8 w-full pb-20 md:pb-8">
           <div className="space-y-3 sm:space-y-5 lg:space-y-6">
             {/* HERO BANNER */}
-            <HeroBanner onOrderNow={handleOrderNow} />
+            <HeroBanner products={products} onOrderNow={handleOrderNow} />
 
             {/* PRODUCTS SECTION HEADER & SORTING */}
             <div
@@ -728,202 +725,117 @@ export default function LandingPage() {
 }
 
 {/* ====================================================================== */}
-{/* HERO BANNER CAROUSEL COMPONENT                                         */}
+{/* TODAY'S SPECIAL PROMOTIONAL BANNER COMPONENT                            */}
 {/* ====================================================================== */}
-function HeroBanner({ onOrderNow }: { onOrderNow: () => void }) {
-  const slides = [
-    {
-      title: "DELICIOUS HALAL FOOD",
-      tagline: "Fresh Ingredients • Great Taste • Always Halal",
-      description:
-        "Authentic NYC-style chicken & lamb platters over spiced basmati rice, warm pita, crisp salad, and Tex's world-famous sauces.",
-      image: "/products/chicken-platter.jpg",
-      badge: "100% HALAL",
-      cta: "ORDER NOW →",
-    },
-    {
-      title: "AUTHENTIC GYROS & PLATTERS",
-      tagline: "Wrapped Fresh in Warm Pita Bread",
-      description:
-        "Tender seasoned lamb, chicken shawarma, and golden falafel with cool garlic yogurt and fiery red hot sauce.",
-      image: "/products/combo-platter.jpg",
-      badge: "100% HALAL",
-      cta: "ORDER NOW →",
-    },
-    {
-      title: "SIGNATURE WINGS & SIDES",
-      tagline: "Crispy • Saucy • Authentic Flavor",
-      description:
-        "Tossed in Sweet Chili, Honey BBQ, Buffalo, or Lemon Pepper with loaded seasoned fries, hummus, and golden baklava.",
-      image: "/products/catering.jpg",
-      badge: "100% HALAL",
-      cta: "ORDER NOW →",
-    },
-  ];
+function HeroBanner({
+  products,
+  onOrderNow,
+}: {
+  products: MarketplaceProduct[];
+  onOrderNow: () => void;
+}) {
+  // Automatically select the first 3 currently displayed products
+  const topThreeProducts = useMemo(() => products.slice(0, 3), [products]);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
-  const [currentSlide, setCurrentSlide] = useState(0);
-
+  // Rotate between Product 1 -> Product 2 -> Product 3 automatically
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 6000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
+    if (topThreeProducts.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % topThreeProducts.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [topThreeProducts.length]);
 
-  const slide = slides[currentSlide];
+  const activeProduct = topThreeProducts[currentIndex] || topThreeProducts[0];
+
+  const activeImageSrc = useMemo(() => {
+    if (!activeProduct) return null;
+    const parsed = parseProductOptions(activeProduct.options);
+    const variantImage = parsed.find((o) => o.image && o.image.trim())?.image?.trim();
+    const rawImage = variantImage || activeProduct.image;
+    return rawImage ? resolveProductImageUrl(rawImage) : null;
+  }, [activeProduct]);
 
   return (
-    <>
-      {/* ================================================================ */}
-      {/* MOBILE HERO: PREMIUM RESTAURANT ADVERTISEMENT (sm:hidden)        */}
-      {/* ================================================================ */}
-      <div className="sm:hidden relative overflow-hidden rounded-xl bg-emerald-950 text-white shadow-md border border-emerald-900/60 min-h-[160px] flex items-center">
-        {/* Existing appetizing food image positioned prominently on the right */}
-        <img
-          src={slide.image}
-          alt={slide.title}
-          className="absolute inset-0 h-full w-full object-cover object-[80%_center] transition-all duration-700"
-        />
+    <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-emerald-950 text-white shadow-md border border-emerald-900/60 p-3 xs:p-3.5 sm:p-5 md:p-6 min-h-[145px] xs:min-h-[155px] sm:min-h-[185px] md:min-h-[210px] flex items-center">
+      {/* Subtle brand glow behind container */}
+      <div className="absolute -top-12 left-1/3 w-64 h-32 bg-emerald-700/15 blur-3xl pointer-events-none rounded-full" />
+      <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/40 pointer-events-none" />
 
-        {/* Directional subtle dark gradient: deep emerald on left behind text, fading smoothly to 100% transparent on right */}
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/85 to-transparent w-[70%]" />
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/90 via-emerald-950/35 to-transparent" />
-
-        {/* Content Container (Left Side) */}
-        <div className="relative z-10 p-2.5 xs:p-3 max-w-[65%] flex flex-col justify-center">
-          {/* Top Small Badge: 100% HALAL */}
-          <div className="inline-flex items-center gap-1 rounded-full bg-amber-400/20 border border-amber-400/60 px-1.5 py-0.5 text-[8.5px] font-bold text-amber-300 backdrop-blur-xs leading-none w-fit shadow-xs">
-            <ShieldCheck className="h-2.5 w-2.5 text-amber-400 shrink-0" />
-            <span>100% HALAL</span>
-          </div>
-
-          {/* Main Headline: DELICIOUS HALAL FOOD */}
-          <h2 className="text-[13px] xs:text-[14px] font-black tracking-tight text-white leading-[1.12] uppercase mt-1">
-            DELICIOUS<br />HALAL FOOD
+      {/* Main 2-column layout: Text on Left, Single Product Image on Right */}
+      <div className="relative z-10 w-full flex items-center justify-between gap-3 sm:gap-6">
+        {/* LEFT SIDE: Promotional Text & CTA */}
+        <div className="flex-1 min-w-0 flex flex-col justify-center text-left py-0.5">
+          <h2 className="text-sm xs:text-base sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase leading-tight">
+            TODAY'S SPECIAL
           </h2>
 
-          {/* Taste the Difference */}
-          <p className="text-[10px] font-bold text-amber-300 mt-0.5 leading-tight">
-            Taste the Difference
+          <p className="text-xs xs:text-sm sm:text-base md:text-lg font-bold text-amber-300 mt-0.5 sm:mt-1 leading-tight">
+            Worth Every Bite
           </p>
 
-          {/* Supporting Copy */}
-          <div className="mt-1 text-[8px] xs:text-[8.5px] font-medium text-emerald-100/90 leading-tight">
-            <p>Fresh Ingredients</p>
-            <p className="text-emerald-200/80">Great Taste · Always Halal</p>
-          </div>
+          <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/80 mt-0.5 sm:mt-1 font-normal line-clamp-1">
+            Fresh favorites made for you.
+          </p>
 
-          {/* Single Strong CTA: ORDER NOW → */}
-          <div className="mt-2">
+          <div className="mt-2.5 sm:mt-4">
             <button
               type="button"
               onClick={onOrderNow}
-              className="inline-flex items-center justify-center bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-2.5 py-1 text-[9px] xs:text-[9.5px] rounded-md shadow-md active:scale-95 transition-transform leading-none"
+              className="inline-flex items-center justify-center gap-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-2.5 py-1 xs:px-3 xs:py-1.5 sm:px-4 sm:py-2 text-[9.5px] xs:text-[10.5px] sm:text-xs md:text-sm rounded-lg sm:rounded-xl shadow-md active:scale-95 transition-all leading-none"
             >
-              ORDER NOW →
+              <span>VIEW SPECIALS →</span>
             </button>
           </div>
         </div>
 
-        {/* Carousel Indicator: ● ○ ○ (Unobtrusive in bottom right) */}
-        <div className="absolute bottom-2 right-2 z-10 flex items-center gap-1 bg-black/40 backdrop-blur-xs px-1.5 py-0.5 rounded-full border border-white/10">
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              className={`rounded-full transition-all ${
-                currentSlide === index
-                  ? "h-1.5 w-2.5 bg-amber-400"
-                  : "h-1.5 w-1.5 bg-white/40 hover:bg-white/70"
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* ================================================================ */}
-      {/* DESKTOP HERO: UNCHANGED (hidden sm:flex)                          */}
-      {/* ================================================================ */}
-      <div className="hidden sm:flex relative overflow-hidden rounded-xl sm:rounded-3xl bg-emerald-950 text-white shadow-lg border border-emerald-900/60 min-h-[320px] md:min-h-[380px] items-center">
-        {/* Background image & gradient overlay */}
-        <div className="absolute inset-0 z-0">
-          <img
-            src={slide.image}
-            alt={slide.title}
-            className="h-full w-full object-cover object-center transition-all duration-700 scale-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/95 via-emerald-950/85 to-emerald-950/50 md:to-transparent" />
-          <div className="absolute inset-0 bg-radial from-transparent via-emerald-950/40 to-emerald-950/80" />
-        </div>
-
-        {/* Content overlay */}
-        <div className="relative z-10 p-3 xs:p-4 sm:p-8 md:p-10 max-w-xl">
-          <div className="inline-flex items-center gap-1 sm:gap-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 px-2 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold text-amber-300 backdrop-blur-xs mb-1.5 sm:mb-3 shadow-xs">
-            <ShieldCheck className="h-2.5 w-2.5 sm:h-3.5 sm:w-3.5 text-amber-400" />
-            <span>{slide.badge}</span>
-          </div>
-
-          <h2 className="text-sm xs:text-base sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            {slide.title}
-          </h2>
-
-          <p className="mt-0.5 sm:mt-2 text-[10px] xs:text-xs sm:text-base font-semibold text-emerald-300 line-clamp-1">
-            {slide.tagline}
-          </p>
-
-          <p className="hidden sm:block mt-1 text-xs sm:text-sm text-emerald-100/80 line-clamp-2 max-w-md">
-            {slide.description}
-          </p>
-
-          <div className="mt-2.5 sm:mt-6 flex items-center gap-2 sm:gap-3">
-            <Button
-              type="button"
-              onClick={onOrderNow}
-              className="bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold px-3 py-1.5 h-7 xs:h-8 sm:h-11 text-[10px] xs:text-xs sm:text-sm rounded-lg sm:rounded-xl shadow-md transition-transform active:scale-95 flex items-center gap-1.5"
+        {/* RIGHT SIDE: ONE Sharp, Uncropped Product Image */}
+        <div className="shrink-0 w-[110px] xs:w-[125px] sm:w-[170px] md:w-[210px] aspect-square flex items-center justify-center">
+          {activeProduct ? (
+            <Link
+              to={`/products/${activeProduct.slug}`}
+              className="group relative h-full w-full rounded-lg sm:rounded-xl border border-white/15 bg-white/5 hover:border-amber-400/60 p-1.5 xs:p-2 flex items-center justify-center transition-all shadow-sm"
+              title={activeProduct.name}
             >
-              <span>{slide.cta}</span>
-            </Button>
-            <div className="hidden sm:inline-flex items-center gap-1.5 text-xs text-emerald-200 font-semibold">
-              <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span>Ready for Pickup & Delivery</span>
-            </div>
-          </div>
-        </div>
+              {activeImageSrc ? (
+                <img
+                  key={activeProduct.id}
+                  src={activeImageSrc}
+                  alt={activeProduct.name}
+                  referrerPolicy="no-referrer"
+                  className="max-h-full max-w-full h-auto w-auto object-contain transition-opacity duration-300 select-none group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-white/40">
+                  <ImageIcon className="h-8 w-8 sm:h-12 sm:w-12" />
+                </div>
+              )}
 
-        {/* Carousel Dots & Controls */}
-        <div className="absolute bottom-2 right-2 sm:bottom-4 sm:right-4 z-10 flex items-center gap-1 sm:gap-1.5 bg-black/40 backdrop-blur px-2 py-0.5 sm:px-3 sm:py-1.5 rounded-full border border-white/10">
-          <button
-            type="button"
-            onClick={() => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length)}
-            className="text-white/70 hover:text-white transition-colors p-0.5"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="h-3 w-3 sm:h-4 sm:w-4" />
-          </button>
-          {slides.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setCurrentSlide(index)}
-              aria-label={`Go to slide ${index + 1}`}
-              className={`h-1 sm:h-2 rounded-full transition-all ${
-                currentSlide === index ? "w-3 sm:w-6 bg-amber-400" : "w-1 sm:w-2 bg-white/40 hover:bg-white/70"
-              }`}
-            />
-          ))}
-          <button
-            type="button"
-            onClick={() => setCurrentSlide((prev) => (prev + 1) % slides.length)}
-            className="text-white/70 hover:text-white transition-colors p-0.5"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="h-3 w-3 sm:h-4 sm:w-4" />
-          </button>
+              {/* Subtle single dot indicators if multiple products are rotating */}
+              {topThreeProducts.length > 1 && (
+                <div className="absolute -bottom-2 sm:-bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-emerald-950/90 px-1.5 py-0.5 rounded-full border border-white/10 shadow-xs">
+                  {topThreeProducts.map((_, dotIdx) => (
+                    <span
+                      key={dotIdx}
+                      className={`block rounded-full transition-all ${
+                        dotIdx === currentIndex
+                          ? "h-1 w-2 sm:h-1.5 sm:w-3 bg-amber-400"
+                          : "h-1 w-1 sm:h-1.5 sm:w-1.5 bg-white/30"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </Link>
+          ) : (
+            <div className="h-full w-full rounded-lg sm:rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
+              <ImageIcon className="h-8 w-8 text-white/20" />
+            </div>
+          )}
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
