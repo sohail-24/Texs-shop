@@ -260,16 +260,16 @@ export default function LandingPage() {
                         grid.scrollIntoView({ behavior: "smooth" });
                       }
                     }}
-                    className={`w-full flex items-center gap-1.5 px-1.5 xs:px-2 py-2 text-left transition-colors border-l-2 ${
+                    className={`w-full flex items-start gap-1.5 px-1.5 xs:px-2 py-1.5 xs:py-2 text-left transition-colors border-l-2 h-[42px] xs:h-[46px] shrink-0 ${
                       isActive
                         ? "border-emerald-400 bg-white/10 text-white font-bold"
                         : "border-transparent bg-transparent text-emerald-100/80 hover:text-white hover:bg-white/5 font-medium"
                     }`}
                   >
-                    <span className="text-xs xs:text-sm w-4 shrink-0 text-center select-none leading-none">
+                    <span className="w-4 h-[14px] xs:h-[15px] flex items-center justify-center shrink-0 select-none text-xs xs:text-sm leading-none">
                       {item.emoji}
                     </span>
-                    <span className="text-[11.5px] xs:text-xs sm:text-[13px] tracking-tight leading-tight truncate">
+                    <span className="flex-1 min-w-0 h-[28px] xs:h-[30px] block text-[11px] xs:text-xs tracking-tight leading-[14px] xs:leading-[15px] break-words whitespace-normal overflow-hidden">
                       {item.name}
                     </span>
                   </button>
@@ -348,16 +348,16 @@ export default function LandingPage() {
                         grid.scrollIntoView({ behavior: "smooth" });
                       }
                     }}
-                    className={`w-full flex items-center gap-2.5 px-3 py-2 lg:py-2.5 text-left transition-colors border-l-2 ${
+                    className={`w-full flex items-start gap-2.5 px-3 py-2 text-left transition-colors border-l-2 h-[52px] lg:h-[56px] shrink-0 ${
                       isActive
                         ? "border-emerald-400 bg-white/10 text-white font-bold"
                         : "border-transparent bg-transparent text-emerald-100/80 hover:text-white hover:bg-white/5 font-medium"
                     }`}
                   >
-                    <span className="text-base lg:text-lg w-6 lg:w-7 text-center shrink-0 select-none leading-none">
+                    <span className="w-6 lg:w-7 h-[18px] lg:h-[20px] flex items-center justify-center shrink-0 select-none text-base lg:text-lg leading-none">
                       {item.emoji}
                     </span>
-                    <span className="text-sm lg:text-[15px] leading-tight truncate">
+                    <span className="flex-1 min-w-0 h-[36px] lg:h-[40px] block text-sm lg:text-[15px] leading-[18px] lg:leading-[20px] break-words whitespace-normal overflow-hidden">
                       {item.name}
                     </span>
                   </button>
