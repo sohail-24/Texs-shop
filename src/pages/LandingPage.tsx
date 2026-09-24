@@ -729,10 +729,10 @@ export default function LandingPage() {
 {/* ====================================================================== */}
 function HeroBanner({
   products,
-  onOrderNow,
+  onOrderNow: _onOrderNow,
 }: {
   products: MarketplaceProduct[];
-  onOrderNow: () => void;
+  onOrderNow?: () => void;
 }) {
   // Automatically select the first 3 currently displayed products
   const topThreeProducts = useMemo(() => products.slice(0, 3), [products]);
@@ -747,7 +747,8 @@ function HeroBanner({
     return () => clearInterval(interval);
   }, [topThreeProducts.length]);
 
-  const activeProduct = topThreeProducts[currentIndex] || topThreeProducts[0];
+  const safeIndex = topThreeProducts.length > 0 ? currentIndex % topThreeProducts.length : 0;
+  const activeProduct = topThreeProducts[safeIndex];
 
   const activeImageSrc = useMemo(() => {
     if (!activeProduct) return null;
@@ -757,85 +758,70 @@ function HeroBanner({
     return rawImage ? resolveProductImageUrl(rawImage) : null;
   }, [activeProduct]);
 
-  return (
-    <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-emerald-950 text-white shadow-md border border-emerald-900/60 p-3 xs:p-3.5 sm:p-5 md:p-6 min-h-[145px] xs:min-h-[155px] sm:min-h-[185px] md:min-h-[210px] flex items-center">
-      {/* Subtle brand glow behind container */}
-      <div className="absolute -top-12 left-1/3 w-64 h-32 bg-emerald-700/15 blur-3xl pointer-events-none rounded-full" />
-      <div className="absolute inset-0 bg-gradient-to-r from-emerald-950 via-emerald-950/90 to-emerald-900/40 pointer-events-none" />
-
-      {/* Main 2-column layout: Text on Left, Single Product Image on Right */}
-      <div className="relative z-10 w-full flex items-center justify-between gap-3 sm:gap-6">
-        {/* LEFT SIDE: Promotional Text & CTA */}
-        <div className="flex-1 min-w-0 flex flex-col justify-center text-left py-0.5">
-          <h2 className="text-sm xs:text-base sm:text-2xl md:text-3xl font-black tracking-tight text-white uppercase leading-tight">
-            TODAY'S SPECIAL
-          </h2>
-
-          <p className="text-xs xs:text-sm sm:text-base md:text-lg font-bold text-amber-300 mt-0.5 sm:mt-1 leading-tight">
-            Worth Every Bite
-          </p>
-
-          <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/80 mt-0.5 sm:mt-1 font-normal line-clamp-1">
-            Fresh favorites made for you.
-          </p>
-
-          <div className="mt-2.5 sm:mt-4">
-            <button
-              type="button"
-              onClick={onOrderNow}
-              className="inline-flex items-center justify-center gap-1 bg-amber-400 hover:bg-amber-300 text-slate-950 font-black px-2.5 py-1 xs:px-3 xs:py-1.5 sm:px-4 sm:py-2 text-[9.5px] xs:text-[10.5px] sm:text-xs md:text-sm rounded-lg sm:rounded-xl shadow-md active:scale-95 transition-all leading-none"
-            >
-              <span>VIEW SPECIALS →</span>
-            </button>
-          </div>
-        </div>
-
-        {/* RIGHT SIDE: ONE Sharp, Uncropped Product Image */}
-        <div className="shrink-0 w-[110px] xs:w-[125px] sm:w-[170px] md:w-[210px] aspect-square flex items-center justify-center">
-          {activeProduct ? (
-            <Link
-              to={`/products/${activeProduct.slug}`}
-              className="group relative h-full w-full rounded-lg sm:rounded-xl border border-white/15 bg-white/5 hover:border-amber-400/60 p-1.5 xs:p-2 flex items-center justify-center transition-all shadow-sm"
-              title={activeProduct.name}
-            >
-              {activeImageSrc ? (
-                <img
-                  key={activeProduct.id}
-                  src={activeImageSrc}
-                  alt={activeProduct.name}
-                  referrerPolicy="no-referrer"
-                  className="max-h-full max-w-full h-auto w-auto object-contain transition-opacity duration-300 select-none group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-white/40">
-                  <ImageIcon className="h-8 w-8 sm:h-12 sm:w-12" />
-                </div>
-              )}
-
-              {/* Subtle single dot indicators if multiple products are rotating */}
-              {topThreeProducts.length > 1 && (
-                <div className="absolute -bottom-2 sm:-bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-1 bg-emerald-950/90 px-1.5 py-0.5 rounded-full border border-white/10 shadow-xs">
-                  {topThreeProducts.map((_, dotIdx) => (
-                    <span
-                      key={dotIdx}
-                      className={`block rounded-full transition-all ${
-                        dotIdx === currentIndex
-                          ? "h-1 w-2 sm:h-1.5 sm:w-3 bg-amber-400"
-                          : "h-1 w-1 sm:h-1.5 sm:w-1.5 bg-white/30"
-                      }`}
-                    />
-                  ))}
-                </div>
-              )}
-            </Link>
-          ) : (
-            <div className="h-full w-full rounded-lg sm:rounded-xl border border-white/10 bg-white/5 flex items-center justify-center">
-              <ImageIcon className="h-8 w-8 text-white/20" />
-            </div>
-          )}
+  if (!activeProduct) {
+    return (
+      <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-emerald-950 border border-emerald-900/60 shadow-md h-36 xs:h-44 sm:h-48 md:h-56 flex flex-col justify-center px-5 sm:px-8 md:px-10">
+        <h2 className="font-black tracking-wider text-white uppercase text-sm xs:text-base sm:text-xl md:text-2xl drop-shadow-md leading-tight whitespace-nowrap">
+          TODAY'S SPECIAL
+        </h2>
+        <p className="text-[11px] xs:text-xs sm:text-base md:text-lg font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
+          Worth Every Bite
+        </p>
+        <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/90 mt-0.5 sm:mt-1 line-clamp-1 leading-tight drop-shadow-xs">
+          Fresh favorites made for you.
+        </p>
+        <div className="mt-2.5 sm:mt-3 flex items-center">
+          <span className="inline-flex items-center gap-1.5 text-[10px] xs:text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full shadow-md">
+            VIEW SPECIALS →
+          </span>
         </div>
       </div>
-    </div>
+    );
+  }
+
+  return (
+    <Link
+      to={`/products/${activeProduct.slug}`}
+      className="group relative block w-full overflow-hidden rounded-xl sm:rounded-2xl bg-emerald-950 border border-emerald-900/60 shadow-md h-36 xs:h-44 sm:h-48 md:h-56 select-none cursor-pointer"
+      title={activeProduct.name}
+    >
+      {/* FULL PRODUCT IMAGE FILLS ENTIRE ADVERTISEMENT BOX */}
+      {activeImageSrc ? (
+        <img
+          key={activeProduct.id}
+          src={activeImageSrc}
+          alt={activeProduct.name}
+          referrerPolicy="no-referrer"
+          className="absolute inset-0 w-full h-full object-cover object-center select-none transition-transform duration-700 ease-out group-hover:scale-105"
+        />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center bg-emerald-950 text-white/20">
+          <ImageIcon className="h-14 w-14" />
+        </div>
+      )}
+
+      {/* Gradient overlay to ensure text is sharp and legible without altering the original image quality */}
+      <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-transparent pointer-events-none" />
+
+      {/* PROMOTIONAL TEXT PLACED ON TOP OF PRODUCT IMAGE */}
+      <div className="relative z-10 flex flex-col justify-center h-full px-5 sm:px-8 md:px-10 max-w-xl">
+        <h2 className="font-black tracking-wider text-white uppercase text-sm xs:text-base sm:text-xl md:text-2xl drop-shadow-md leading-tight whitespace-nowrap">
+          TODAY'S SPECIAL
+        </h2>
+        <p className="text-[11px] xs:text-xs sm:text-base md:text-lg font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
+          Worth Every Bite
+        </p>
+        <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/90 mt-0.5 sm:mt-1 line-clamp-1 leading-tight drop-shadow-xs">
+          Fresh favorites made for you.
+        </p>
+
+        <div className="mt-2.5 sm:mt-3 md:mt-3.5 flex items-center">
+          <span className="inline-flex items-center gap-1.5 text-[10px] xs:text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 group-hover:bg-amber-300 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full transition-colors shadow-md">
+            VIEW SPECIALS →
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }
 

@@ -59,24 +59,27 @@ describe("customer category navigation", () => {
       expect(newTopThree.map((p) => p.name)).toEqual(["Mashed Potato", "Coleslaw", "Fire Roasted Corn"]);
     });
 
-    it("ensures advertisement text contains no Halal Food or legacy halal wording", () => {
-      const bannerText = `
-        TODAY'S SPECIAL
-        Worth Every Bite
-        Fresh favorites made for you.
-        VIEW SPECIALS →
-      `.toUpperCase();
+    it("ensures advertisement contains the required promotional lines and no halal wording", () => {
+      const heading = "TODAY'S SPECIAL";
+      const secondary = "Worth Every Bite";
+      const supporting = "Fresh favorites made for you.";
+      const cta = "VIEW SPECIALS →";
 
-      expect(bannerText).not.toContain("HALAL FOOD");
-      expect(bannerText).not.toContain("DELICIOUS HALAL");
-      expect(bannerText).not.toContain("ALWAYS HALAL");
-      expect(bannerText).not.toContain("TASTE THE DIFFERENCE");
-      expect(bannerText).toContain("TODAY'S SPECIAL");
-      expect(bannerText).toContain("WORTH EVERY BITE");
-      expect(bannerText).toContain("VIEW SPECIALS");
+      const fullBannerText = `${heading} ${secondary} ${supporting} ${cta}`.toUpperCase();
+
+      expect(heading).toBe("TODAY'S SPECIAL");
+      expect(secondary).toBe("Worth Every Bite");
+      expect(supporting).toBe("Fresh favorites made for you.");
+      expect(cta).toBe("VIEW SPECIALS →");
+
+      // Strictly no halal advertisement wording
+      expect(fullBannerText).not.toContain("HALAL FOOD");
+      expect(fullBannerText).not.toContain("DELICIOUS HALAL");
+      expect(fullBannerText).not.toContain("ALWAYS HALAL");
+      expect(fullBannerText).not.toContain("TASTE THE DIFFERENCE");
     });
 
-    it("rotates single active product on the right side from the top 3", () => {
+    it("rotates single active product for full-box display from the top 3", () => {
       const topThree = [
         { id: 1, name: "Coleslaw", image: "/img/coleslaw.png" },
         { id: 2, name: "Fire Roasted Corn", image: "/img/corn.png" },
