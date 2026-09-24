@@ -6,7 +6,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { addGuestCartItem } from "@/lib/guestCart";
 import { formatCurrency, toNumber, unitLabels } from "@/lib/i18n";
 import { parseProductOptions } from "@/types";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -118,10 +117,6 @@ export default function ProductDetail() {
     return null;
   }, [hasOptions, selectedOption, price, product?.compareAtPrice]);
 
-  const discount = compareAt && compareAt > price
-    ? Math.round(((compareAt - price) / compareAt) * 100)
-    : 0;
-
   const resolvedOptionLabel = useMemo(() => {
     if (!selectedOption) return undefined;
     if (selectedPricingMode === "meal" && selectedOption.mealPrice) {
@@ -215,7 +210,7 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="grid gap-8 lg:grid-cols-[330px_1fr]">
+      <section className="grid gap-6 lg:gap-8 lg:grid-cols-[330px_1fr]">
         <div className="w-full max-w-[290px] sm:max-w-[330px] mx-auto lg:max-w-none overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-3 sm:p-4 shadow-xs">
           <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
             {currentImage && !imageFailed ? (
@@ -233,38 +228,29 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className="space-y-5 md:space-y-6">
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{product.categoryName ?? "Halal Food"}</Badge>
-            <Badge className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border-emerald-300">100% Certified Halal</Badge>
-          </div>
+        <div className="space-y-4">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">{product.name}</h1>
-            <p className="mt-1 text-sm text-muted-foreground">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
-          </div>
-          {activeIncludedWith && (
-            <div className="flex items-center gap-2 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/60 px-3 py-2 text-xs sm:text-sm font-medium text-emerald-900 dark:text-emerald-200">
-              <span className="font-semibold text-emerald-700 dark:text-emerald-400">What Comes With It:</span>
-              <span>{activeIncludedWith}</span>
+            <div className="flex items-baseline justify-between gap-4">
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground min-w-0 break-words">
+                {product.name}
+              </h1>
+              <div className="shrink-0 text-right">
+                <span className="text-2xl sm:text-3xl font-semibold text-emerald-700 dark:text-emerald-400">
+                  {formatCurrency(price)}
+                </span>
+                {compareAt != null && compareAt > price && (
+                  <span className="ml-2 text-sm sm:text-base text-muted-foreground line-through">
+                    {formatCurrency(compareAt)}
+                  </span>
+                )}
+              </div>
             </div>
-          )}
-          <div className="flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-semibold text-emerald-700">{formatCurrency(price)}</span>
-            {resolvedOptionLabel ? (
-              <span className="text-sm font-medium text-emerald-800 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-300 px-2.5 py-0.5 rounded-full border border-emerald-200">
-                {resolvedOptionLabel}
-              </span>
-            ) : product.unitSize ? (
-              <span className="text-sm text-muted-foreground">({product.unitSize})</span>
-            ) : unitLabels[unit] && unitLabels[unit] !== "item" && unitLabels[unit] !== "order" ? (
-              <span className="text-sm text-muted-foreground">/ {unitLabels[unit]}</span>
-            ) : null}
-            {compareAt != null && compareAt > price && (
-              <span className="text-lg text-muted-foreground line-through">
-                {formatCurrency(compareAt)}
-              </span>
+            {activeIncludedWith && (
+              <p className="mt-1 text-sm sm:text-base font-normal text-muted-foreground">
+                {activeIncludedWith}
+              </p>
             )}
-            {discount > 0 && <Badge>{discount}% OFF</Badge>}
+            <p className="mt-1 text-xs text-muted-foreground/80">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
           </div>
 
           {/* Product Options / Variants Selector */}
@@ -382,9 +368,6 @@ export default function ProductDetail() {
           <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
             <p><span className="font-medium text-foreground">Serving / Portion:</span> {resolvedOptionLabel || product.unitSize || "1 Order"}</p>
             <p><span className="font-medium text-foreground">Category:</span> {product.categoryName ?? "Halal Food"}</p>
-            {activeIncludedWith && (
-              <p><span className="font-medium text-foreground">What Comes With It:</span> {activeIncludedWith}</p>
-            )}
             {product.origin && (
               <p><span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}</p>
             )}

@@ -995,6 +995,9 @@ function FoodProductCard({
 
   const options = useMemo(() => parseProductOptions(product.options), [product.options]);
   const hasOptions = options.length > 0;
+  const itemSubtitle = useMemo(() => {
+    return (hasOptions ? options.find((o) => o.includedWith?.trim())?.includedWith?.trim() : null) || product.includedWith?.trim() || null;
+  }, [hasOptions, options, product.includedWith]);
   const minOptionPrice = useMemo(() => {
     if (!hasOptions) return price;
     const prices = options.map((o) => o.onlyPrice || o.price || o.mealPrice || price).filter(Boolean);
@@ -1056,9 +1059,9 @@ function FoodProductCard({
             {product.name}
           </Link>
 
-          {/* LINE 3: SHOP NAME */}
+          {/* LINE 3: WHAT COMES WITH IT / SHOP NAME */}
           <p className="text-[9px] xs:text-[10px] font-normal text-slate-500 leading-none truncate">
-            Tex’s Chicken & Burgers
+            {itemSubtitle || (product.supplierName ?? "Tex’s Chicken & Burgers")}
           </p>
 
           {/* LINE 4: PRICE + ORIGINAL PRICE */}
@@ -1156,7 +1159,7 @@ function FoodProductCard({
               {product.name}
             </Link>
             <p className="text-xs text-slate-400 truncate">
-              {product.supplierName ?? "Tex’s Chicken & Burgers"}
+              {itemSubtitle || (product.supplierName ?? "Tex’s Chicken & Burgers")}
             </p>
           </div>
 

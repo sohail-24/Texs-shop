@@ -891,6 +891,9 @@ export function ProductCard({
   const unitLabel = unitLabels[unit] ?? unit;
   const options = useMemo(() => parseProductOptions(product.options), [product.options]);
   const hasOptions = options.length > 0;
+  const itemSubtitle = useMemo(() => {
+    return (hasOptions ? options.find((o) => o.includedWith?.trim())?.includedWith?.trim() : null) || product.includedWith?.trim() || null;
+  }, [hasOptions, options, product.includedWith]);
   const firstVariantImage = useMemo(() => {
     if (!hasOptions) return null;
     return options.find((o) => o.image && o.image.trim())?.image?.trim() || null;
@@ -940,9 +943,9 @@ export function ProductCard({
             {product.name}
           </Link>
 
-          {/* 4. "Tex’s Chicken & Burgers" */}
+          {/* 4. What Comes With It / Shop Name */}
           <p className="text-[9px] xs:text-[10px] sm:text-xs font-normal text-slate-500 leading-none truncate">
-            {product.supplierName ?? "Tex’s Chicken & Burgers"}
+            {itemSubtitle || (product.supplierName ?? "Tex’s Chicken & Burgers")}
           </p>
 
           {/* 5. Selling price + original price */}

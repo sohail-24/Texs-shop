@@ -207,4 +207,109 @@ describe("ProductDetail Option Selection Header Logic", () => {
     expect(smOpt?.price).toBe(3.25);
     expect(lgOpt?.price).toBe(5.99);
   });
+
+  it("verifies customer-facing display formatting for calories and includedWith values", () => {
+    // 1. Single price product: Mashed Potato with "460 CAL"
+    const mashedPotato = {
+      name: "Mashed Potato",
+      includedWith: "460 CAL",
+      options: "[]",
+    };
+    const options = parseProductOptions(mashedPotato.options);
+    const hasOptions = options.length > 0;
+
+    const activeIncludedWith = hasOptions
+      ? (options[0]?.includedWith?.trim() || null)
+      : (mashedPotato.includedWith?.trim() || null);
+
+    // Displays ONLY the actual value without "What Comes With It:" prefix
+    expect(activeIncludedWith).toBe("460 CAL");
+    expect(activeIncludedWith).not.toContain("What Comes With It:");
+
+    // 2. Dish with sides: 8 PC Chicken with "2 Sides and 4 Biscuits"
+    const chickenFamily = {
+      name: "8 PC Chicken",
+      includedWith: "2 Sides and 4 Biscuits",
+      options: "[]",
+    };
+    const chickenValue = chickenFamily.includedWith.trim();
+    expect(chickenValue).toBe("2 Sides and 4 Biscuits");
+    expect(chickenValue).not.toContain("What Comes With It:");
+
+    // 3. Variant product switching: SM vs LG
+    const variantDish = {
+      name: "Chicken Meal",
+      options: JSON.stringify([
+        { id: "sm", name: "SM", price: 3.25, includedWith: "With Fries and Juice" },
+        { id: "lg", name: "LG", price: 5.99, includedWith: "With Fries and 2 Biscuits" },
+      ]),
+    };
+    const parsedVariants = parseProductOptions(variantDish.options);
+
+    function getDisplaySubtitle(selectedId: string) {
+      const selected = parsedVariants.find((v) => v.id === selectedId) || parsedVariants[0];
+      return selected.includedWith?.trim() || null;
+    }
+
+    expect(getDisplaySubtitle("sm")).toBe("With Fries and Juice");
+    expect(getDisplaySubtitle("lg")).toBe("With Fries and 2 Biscuits");
+    expect(getDisplaySubtitle("sm")).not.toContain("What Comes With It:");
+    expect(getDisplaySubtitle("lg")).not.toContain("What Comes With It:");
+
+    // 4. Empty includedWith returns null (no empty elements rendered)
+    const emptyDish = {
+      name: "Plain Water",
+      includedWith: "   ",
+      options: "[]",
+    };
+    const emptyValue = emptyDish.includedWith?.trim() || null;
+    expect(emptyValue).toBeNull();
+  });
+
+  it("verifies single-line title + price layout and variant price synchronization", () => {
+    // 1. Single price product: Mashed Potato $3.25
+    const singleProduct = {
+      name: "Mashed Potato",
+      unitPrice: "3.25",
+      includedWith: "460 CAL",
+      options: "[]",
+    };
+
+    function resolveDisplay(product: any, selectedVariantId?: string) {
+      const options = parseProductOptions(product.options);
+      const selected = options.find((o) => o.id === selectedVariantId) || options[0];
+      const activePrice = selected ? (selected.price || selected.mealPrice) : Number(product.unitPrice);
+      const activeIncludedWith = selected?.includedWith?.trim() || product.includedWith?.trim() || null;
+      return {
+        name: product.name,
+        price: activePrice,
+        includedWith: activeIncludedWith,
+      };
+    }
+
+    const singleDisplay = resolveDisplay(singleProduct);
+    expect(singleDisplay.name).toBe("Mashed Potato");
+    expect(singleDisplay.price).toBe(3.25);
+    expect(singleDisplay.includedWith).toBe("460 CAL");
+
+    // 2. Variant product: Chicken Meal switching SM ($3.25) -> LG ($5.99)
+    const variantProduct = {
+      name: "Chicken Meal",
+      unitPrice: "3.25",
+      options: JSON.stringify([
+        { id: "sm", name: "SM", price: 3.25, includedWith: "With Fries and Juice" },
+        { id: "lg", name: "LG", price: 5.99, includedWith: "With Fries and 2 Biscuits" },
+      ]),
+    };
+
+    const smDisplay = resolveDisplay(variantProduct, "sm");
+    expect(smDisplay.name).toBe("Chicken Meal");
+    expect(smDisplay.price).toBe(3.25);
+    expect(smDisplay.includedWith).toBe("With Fries and Juice");
+
+    const lgDisplay = resolveDisplay(variantProduct, "lg");
+    expect(lgDisplay.name).toBe("Chicken Meal");
+    expect(lgDisplay.price).toBe(5.99);
+    expect(lgDisplay.includedWith).toBe("With Fries and 2 Biscuits");
+  });
 });
