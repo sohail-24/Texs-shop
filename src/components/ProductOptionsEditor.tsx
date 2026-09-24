@@ -18,6 +18,60 @@ interface ProductOptionsEditorProps {
   onBasePriceChange?: (price: string) => void;
 }
 
+export function getPresetOptions(presetName: string, basePrice?: number | string): ProductOption[] {
+  let presetOptions: ProductOption[] = [];
+  if (presetName === "signature-chicken") {
+    presetOptions = [
+      { id: nanoid(6), name: "2 PC", price: 7.49, mealPrice: 10.49, onlyPrice: 7.49 },
+      { id: nanoid(6), name: "3 PC", price: 9.49, mealPrice: 12.49, onlyPrice: 9.49 },
+      { id: nanoid(6), name: "4 PC", price: 11.49, mealPrice: 14.49, onlyPrice: 11.49 },
+    ];
+  } else if (presetName === "fiery-wings") {
+    presetOptions = [
+      { id: nanoid(6), name: "6 PC", price: 8.99, mealPrice: 11.99, onlyPrice: 8.99 },
+      { id: nanoid(6), name: "15 PC", price: 19.99, mealPrice: 22.99, onlyPrice: 19.99 },
+    ];
+  } else if (presetName === "sandwich") {
+    presetOptions = [
+      { id: nanoid(6), name: "Classic", price: 6.99, mealPrice: 9.99, onlyPrice: 6.99 },
+      { id: nanoid(6), name: "Deluxe", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
+      { id: nanoid(6), name: "Grilled", price: 8.49, mealPrice: 11.49, onlyPrice: 8.49 },
+    ];
+  } else if (presetName === "tenders") {
+    presetOptions = [
+      { id: nanoid(6), name: "3 PC", price: 6.49, mealPrice: 9.49, onlyPrice: 6.49 },
+      { id: nanoid(6), name: "5 PC", price: 9.99, mealPrice: 12.99, onlyPrice: 9.99 },
+    ];
+  } else if (presetName === "meal-only") {
+    presetOptions = [
+      { id: nanoid(6), name: "Regular Order", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
+    ];
+  } else if (presetName === "mild") {
+    const defaultPrice = toNumber(basePrice) > 0 ? toNumber(basePrice) : 7.99;
+    presetOptions = [
+      {
+        id: nanoid(6),
+        name: "Mild",
+        price: defaultPrice,
+        mealPrice: Number((defaultPrice + 3).toFixed(2)),
+        onlyPrice: defaultPrice,
+      },
+    ];
+  } else if (presetName === "spicy") {
+    const defaultPrice = toNumber(basePrice) > 0 ? toNumber(basePrice) : 7.99;
+    presetOptions = [
+      {
+        id: nanoid(6),
+        name: "Spicy",
+        price: defaultPrice,
+        mealPrice: Number((defaultPrice + 3).toFixed(2)),
+        onlyPrice: defaultPrice,
+      },
+    ];
+  }
+  return presetOptions;
+}
+
 export function ProductOptionsEditor({
   options,
   onChange,
@@ -67,35 +121,7 @@ export function ProductOptionsEditor({
   };
 
   const applyPreset = (presetName: string) => {
-    let presetOptions: ProductOption[] = [];
-    if (presetName === "signature-chicken") {
-      presetOptions = [
-        { id: nanoid(6), name: "2 PC", price: 7.49, mealPrice: 10.49, onlyPrice: 7.49 },
-        { id: nanoid(6), name: "3 PC", price: 9.49, mealPrice: 12.49, onlyPrice: 9.49 },
-        { id: nanoid(6), name: "4 PC", price: 11.49, mealPrice: 14.49, onlyPrice: 11.49 },
-      ];
-    } else if (presetName === "fiery-wings") {
-      presetOptions = [
-        { id: nanoid(6), name: "6 PC", price: 8.99, mealPrice: 11.99, onlyPrice: 8.99 },
-        { id: nanoid(6), name: "15 PC", price: 19.99, mealPrice: 22.99, onlyPrice: 19.99 },
-      ];
-    } else if (presetName === "sandwich") {
-      presetOptions = [
-        { id: nanoid(6), name: "Classic", price: 6.99, mealPrice: 9.99, onlyPrice: 6.99 },
-        { id: nanoid(6), name: "Deluxe", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
-        { id: nanoid(6), name: "Grilled", price: 8.49, mealPrice: 11.49, onlyPrice: 8.49 },
-      ];
-    } else if (presetName === "tenders") {
-      presetOptions = [
-        { id: nanoid(6), name: "3 PC", price: 6.49, mealPrice: 9.49, onlyPrice: 6.49 },
-        { id: nanoid(6), name: "5 PC", price: 9.99, mealPrice: 12.99, onlyPrice: 9.99 },
-      ];
-    } else if (presetName === "meal-only") {
-      presetOptions = [
-        { id: nanoid(6), name: "Regular Order", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
-      ];
-    }
-
+    const presetOptions = getPresetOptions(presetName, basePrice);
     if (presetOptions.length > 0) {
       onChange(presetOptions);
       if (onBasePriceChange && presetOptions[0]) {
@@ -181,6 +207,20 @@ export function ProductOptionsEditor({
             className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
           >
             Meal vs Only
+          </button>
+          <button
+            type="button"
+            onClick={() => applyPreset("mild")}
+            className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
+          >
+            Mild
+          </button>
+          <button
+            type="button"
+            onClick={() => applyPreset("spicy")}
+            className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
+          >
+            Spicy
           </button>
         </div>
       </CardHeader>

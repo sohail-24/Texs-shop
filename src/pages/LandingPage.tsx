@@ -245,15 +245,18 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-row">
+      {/* Spacer to preserve normal document flow layout width (~28% on mobile) */}
+      <div className="md:hidden w-[28%] shrink-0 pointer-events-none" aria-hidden="true" />
+
       {/* ====================================================================== */}
-      {/* 1. MOBILE LEFT CATEGORY PANEL (~28% WIDTH, PERMANENTLY VISIBLE)        */}
+      {/* 1. FIXED MOBILE VIEWPORT CATEGORY SIDEBAR (~28% WIDTH)                 */}
       {/* ====================================================================== */}
       <aside
         id="mobile-category-sidebar"
         style={{
           background: "linear-gradient(to bottom, #0F5132 0%, #062E1F 50%, #0F5132 100%)",
         }}
-        className="md:hidden w-[28%] shrink-0 sticky top-0 h-screen border-r border-[#062E1F] text-white flex flex-col justify-between overflow-hidden z-30 select-none"
+        className="md:hidden fixed top-0 left-0 w-[28%] bottom-[49px] border-r border-[#062E1F] text-white flex flex-col justify-between overflow-hidden z-40 select-none"
       >
         {/* Top Brand Header */}
         <div className="shrink-0 px-1.5 xs:px-2 pt-5 xs:pt-6 pb-2.5 flex flex-col items-center text-center border-b border-emerald-800/60">
@@ -280,7 +283,7 @@ export default function LandingPage() {
         </div>
 
         {/* Scrollable Categories List */}
-        <div className="flex-1 min-h-0 overflow-y-auto hide-scrollbar pt-[18px] pb-2">
+        <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain hide-scrollbar pt-[18px] pb-2">
           <nav className="flex flex-col gap-1">
             {sidebarCategories.map((item) => {
               const isActive = selectedCategoryKey === item.key;
@@ -343,7 +346,7 @@ export default function LandingPage() {
         style={{
           background: "linear-gradient(to bottom, #0F5132 0%, #062E1F 50%, #0F5132 100%)",
         }}
-        className="hidden md:flex md:w-64 lg:w-72 shrink-0 md:sticky md:top-0 md:h-screen border-r border-[#062E1F] text-white p-4 lg:p-5 flex-col justify-between overflow-hidden z-30 select-none"
+        className="hidden md:flex md:w-64 lg:w-72 shrink-0 md:self-start md:sticky md:top-0 md:h-screen border-r border-[#062E1F] text-white p-4 lg:p-5 flex-col justify-between overflow-hidden z-30 select-none"
       >
         {/* Top Brand Header */}
         <div className="shrink-0 pt-6 lg:pt-8 pb-3.5 flex flex-col items-center text-center border-b border-emerald-800/60">
