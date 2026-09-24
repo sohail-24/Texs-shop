@@ -294,7 +294,7 @@ function AppLayoutContent() {
         <SidebarRail />
       </Sidebar>
 
-      <SidebarInset className="min-w-0 bg-background">
+      <SidebarInset className="min-w-0 max-w-full overflow-x-hidden bg-background">
         <header className="sticky top-0 z-30 flex h-16 shrink-0 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/75 lg:px-6">
           <SidebarTrigger className="h-9 w-9 md:hidden" />
           <Button
@@ -340,7 +340,7 @@ function AppLayoutContent() {
           </div>
         </header>
 
-        <main className="min-w-0 flex-1 px-4 py-5 pb-24 md:pb-5 sm:px-6 lg:px-8">
+        <main className="min-w-0 max-w-full flex-1 px-4 py-5 pb-24 md:pb-5 sm:px-6 lg:px-8 overflow-x-hidden">
           <Outlet />
         </main>
 

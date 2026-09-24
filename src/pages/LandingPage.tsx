@@ -761,17 +761,17 @@ function HeroBanner({
   if (!activeProduct) {
     return (
       <div className="relative w-full overflow-hidden rounded-xl sm:rounded-2xl bg-emerald-950 border border-emerald-900/60 shadow-md h-36 xs:h-44 sm:h-48 md:h-56 flex flex-col justify-center px-5 sm:px-8 md:px-10">
-        <h2 className="font-black tracking-wider text-white uppercase text-sm xs:text-base sm:text-xl md:text-2xl drop-shadow-md leading-tight whitespace-nowrap">
+        <h2 className="font-black tracking-wider text-white uppercase text-[13px] xs:text-sm sm:text-lg md:text-xl drop-shadow-md leading-tight whitespace-nowrap">
           TODAY'S SPECIAL
         </h2>
-        <p className="text-[11px] xs:text-xs sm:text-base md:text-lg font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
+        <p className="text-[10px] xs:text-[11px] sm:text-sm md:text-base font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
           Worth Every Bite
         </p>
         <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/90 mt-0.5 sm:mt-1 line-clamp-1 leading-tight drop-shadow-xs">
           Fresh favorites made for you.
         </p>
         <div className="mt-2.5 sm:mt-3 flex items-center">
-          <span className="inline-flex items-center gap-1.5 text-[10px] xs:text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full shadow-md">
+          <span className="inline-flex items-center gap-1.5 text-[9px] xs:text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full shadow-md">
             VIEW SPECIALS →
           </span>
         </div>
@@ -805,10 +805,10 @@ function HeroBanner({
 
       {/* PROMOTIONAL TEXT PLACED ON TOP OF PRODUCT IMAGE */}
       <div className="relative z-10 flex flex-col justify-center h-full px-5 sm:px-8 md:px-10 max-w-xl">
-        <h2 className="font-black tracking-wider text-white uppercase text-sm xs:text-base sm:text-xl md:text-2xl drop-shadow-md leading-tight whitespace-nowrap">
+        <h2 className="font-black tracking-wider text-white uppercase text-[13px] xs:text-sm sm:text-lg md:text-xl drop-shadow-md leading-tight whitespace-nowrap">
           TODAY'S SPECIAL
         </h2>
-        <p className="text-[11px] xs:text-xs sm:text-base md:text-lg font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
+        <p className="text-[10px] xs:text-[11px] sm:text-sm md:text-base font-bold text-amber-400 mt-0.5 sm:mt-1 leading-snug drop-shadow-sm">
           Worth Every Bite
         </p>
         <p className="text-[10px] xs:text-[11px] sm:text-xs md:text-sm text-emerald-100/90 mt-0.5 sm:mt-1 line-clamp-1 leading-tight drop-shadow-xs">
@@ -816,7 +816,7 @@ function HeroBanner({
         </p>
 
         <div className="mt-2.5 sm:mt-3 md:mt-3.5 flex items-center">
-          <span className="inline-flex items-center gap-1.5 text-[10px] xs:text-[11px] sm:text-xs font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 group-hover:bg-amber-300 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full transition-colors shadow-md">
+          <span className="inline-flex items-center gap-1.5 text-[9px] xs:text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-emerald-950 bg-amber-400 group-hover:bg-amber-300 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-full transition-colors shadow-md">
             VIEW SPECIALS →
           </span>
         </div>

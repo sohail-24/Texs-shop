@@ -139,8 +139,8 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="mx-auto max-w-5xl space-y-6 pb-20 md:pb-0">
-        <Skeleton className="h-8 w-48" />
+      <div className="w-full max-w-5xl min-w-0 mx-auto space-y-6 px-4 md:px-0 pb-20 md:pb-0 overflow-x-hidden">
+        <Skeleton className="h-8 w-48 max-w-full" />
         <Skeleton className="h-[520px] w-full" />
         <CustomerBottomNav active="categories" />
       </div>
@@ -149,10 +149,10 @@ export default function ProductDetail() {
 
   if (!product || isError) {
     return (
-      <div className="mx-auto flex min-h-[420px] max-w-xl flex-col items-center justify-center text-center pb-20 md:pb-0">
+      <div className="w-full max-w-xl min-w-0 mx-auto flex min-h-[420px] flex-col items-center justify-center text-center px-4 md:px-0 pb-20 md:pb-0 overflow-x-hidden">
         <Package className="mb-4 h-12 w-12 text-muted-foreground/40" />
-        <h1 className="text-xl font-semibold">Product not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <h1 className="text-xl font-semibold break-words">Product not found</h1>
+        <p className="mt-2 text-sm text-muted-foreground break-words">
           {error?.message ?? "This product may have been archived or is not available."}
         </p>
         <Link to="/">
@@ -199,8 +199,8 @@ export default function ProductDetail() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl flex flex-col gap-5 px-4 md:px-0 pb-20 md:pb-6">
-      <section className="flex items-center justify-between md:border-b md:pb-3">
+    <div className="w-full max-w-6xl min-w-0 mx-auto flex flex-col gap-5 px-4 md:px-0 pb-20 md:pb-6 overflow-x-hidden">
+      <section className="flex items-center justify-between md:border-b md:pb-3 w-full min-w-0">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-4 w-4" />
           Back to Home
@@ -210,7 +210,7 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:gap-8 lg:grid-cols-[330px_1fr]">
+      <section className="grid gap-6 lg:gap-8 lg:grid-cols-[330px_1fr] w-full min-w-0">
         <div className="w-full max-w-[290px] sm:max-w-[330px] mx-auto lg:max-w-none overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-3 sm:p-4 shadow-xs">
           <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
             {currentImage && !imageFailed ? (
@@ -228,10 +228,10 @@ export default function ProductDetail() {
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-baseline justify-between gap-4">
-              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground min-w-0 break-words">
+        <div className="space-y-4 w-full min-w-0">
+          <div className="w-full min-w-0">
+            <div className="flex items-baseline justify-between gap-4 w-full min-w-0">
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground min-w-0 break-words flex-1">
                 {product.name}
               </h1>
               <div className="shrink-0 text-right">
@@ -246,17 +246,17 @@ export default function ProductDetail() {
               </div>
             </div>
             {activeIncludedWith && (
-              <p className="mt-1 text-sm sm:text-base font-normal text-muted-foreground">
+              <p className="mt-1 text-sm sm:text-base font-normal text-muted-foreground break-words min-w-0">
                 {activeIncludedWith}
               </p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground/80">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/80 break-words min-w-0">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
           </div>
 
           {/* Product Options / Variants Selector */}
           {hasOptions && (
-            <div className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4 shadow-sm">
-              <div className="flex items-center gap-2 sm:gap-2.5 flex-nowrap min-w-0">
+            <div className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4 shadow-sm w-full min-w-0 overflow-hidden">
+              <div className="flex items-center gap-x-2.5 gap-y-1.5 flex-wrap min-w-0 w-full">
                 <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-foreground shrink-0 whitespace-nowrap">
                   <Utensils className="h-4 w-4 text-emerald-600 shrink-0" />
                   Select Option
@@ -265,13 +265,13 @@ export default function ProductDetail() {
                   • Required
                 </span>
                 {resolvedOptionLabel && (
-                  <span className="text-[11px] sm:text-xs text-muted-foreground font-medium shrink-0 whitespace-nowrap truncate min-w-0">
+                  <span className="text-[11px] sm:text-xs text-muted-foreground font-medium min-w-0 break-words max-w-full">
                     Current: <strong className="font-semibold text-foreground">{resolvedOptionLabel}</strong>
                   </span>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full min-w-0">
                 {productOptions.map((opt) => {
                   const isSelected = selectedOption?.id === opt.id;
                   const displayOptPrice = opt.mealPrice || opt.price;
@@ -285,13 +285,13 @@ export default function ProductDetail() {
                         else if (opt.onlyPrice && !opt.mealPrice) setSelectedPricingMode("only");
                         else if (!opt.mealPrice && !opt.onlyPrice) setSelectedPricingMode("standard");
                       }}
-                      className={`flex items-center justify-between p-3 rounded-lg border text-left transition-all ${
+                      className={`w-full min-w-0 flex items-center justify-between p-3 rounded-lg border text-left transition-all ${
                         isSelected
                           ? "border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/20 shadow-sm"
                           : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
                         <div
                           className={`h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
                             isSelected
@@ -301,10 +301,10 @@ export default function ProductDetail() {
                         >
                           {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
                         </div>
-                        <div>
-                          <p className="font-semibold text-sm text-foreground leading-tight">{opt.name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm text-foreground leading-tight break-words">{opt.name}</p>
                           {opt.includedWith ? (
-                            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-0.5 line-clamp-1">
+                            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-0.5 line-clamp-1 break-words">
                               {opt.includedWith}
                             </p>
                           ) : null}
@@ -313,12 +313,12 @@ export default function ProductDetail() {
                           ) : null}
                         </div>
                       </div>
-                      <div className="text-right pl-2">
-                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400">
+                      <div className="text-right pl-2 shrink-0">
+                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
                           {formatCurrency(displayOptPrice)}
                         </p>
                         {opt.compareAtPrice && opt.compareAtPrice > displayOptPrice && (
-                          <p className="text-[11px] text-muted-foreground line-through">
+                          <p className="text-[11px] text-muted-foreground line-through whitespace-nowrap">
                             {formatCurrency(opt.compareAtPrice)}
                           </p>
                         )}
@@ -330,14 +330,14 @@ export default function ProductDetail() {
 
               {/* Meal vs Only Toggle if Selected Option Offers Both */}
               {selectedOption && (selectedOption.mealPrice || selectedOption.onlyPrice) && (
-                <div className="mt-2 pt-3 border-t border-border/60">
+                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
                   <p className="text-xs font-medium text-muted-foreground mb-2">Pricing Structure:</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2 w-full min-w-0">
                     {selectedOption.onlyPrice != null && (
                       <button
                         type="button"
                         onClick={() => setSelectedPricingMode("only")}
-                        className={`py-2 px-3 rounded-md border text-center text-xs font-semibold transition-all ${
+                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate ${
                           selectedPricingMode === "only"
                             ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
                             : "border-border bg-card hover:bg-muted text-foreground"
@@ -350,7 +350,7 @@ export default function ProductDetail() {
                       <button
                         type="button"
                         onClick={() => setSelectedPricingMode("meal")}
-                        className={`py-2 px-3 rounded-md border text-center text-xs font-semibold transition-all ${
+                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate ${
                           selectedPricingMode === "meal"
                             ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
                             : "border-border bg-card hover:bg-muted text-foreground"
@@ -365,27 +365,27 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2">
-            <p><span className="font-medium text-foreground">Serving / Portion:</span> {resolvedOptionLabel || product.unitSize || "1 Order"}</p>
-            <p><span className="font-medium text-foreground">Category:</span> {product.categoryName ?? "Halal Food"}</p>
+          <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 w-full min-w-0">
+            <p className="break-words min-w-0"><span className="font-medium text-foreground">Serving / Portion:</span> {resolvedOptionLabel || product.unitSize || "1 Order"}</p>
+            <p className="break-words min-w-0"><span className="font-medium text-foreground">Category:</span> {product.categoryName ?? "Halal Food"}</p>
             {product.origin && (
-              <p><span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}</p>
+              <p className="break-words min-w-0"><span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}</p>
             )}
             {product.season && (
-              <p><span className="font-medium text-foreground">Served With:</span> {product.season}</p>
+              <p className="break-words min-w-0"><span className="font-medium text-foreground">Served With:</span> {product.season}</p>
             )}
           </div>
 
-          <div className="flex flex-col gap-3 mt-6 md:mt-0">
-            <div className="flex flex-col gap-2 md:block md:space-y-2">
+          <div className="flex flex-col gap-3 mt-6 md:mt-0 w-full min-w-0">
+            <div className="flex flex-col gap-2 md:block md:space-y-2 w-full min-w-0">
               <p className="text-sm font-medium hidden md:block">Quantity</p>
-              <div className="flex items-center justify-between md:justify-start gap-4">
-                <div className="flex items-center gap-3">
-                  <Button variant="outline" size="icon" className="h-10 w-10 shadow-sm" onClick={() => setQuantity(Math.max(minQty, quantity - 1))} disabled={quantity <= minQty || isOutOfStock}>
+              <div className="flex items-center justify-between md:justify-start gap-3 sm:gap-4 flex-wrap w-full min-w-0">
+                <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                  <Button variant="outline" size="icon" className="h-10 w-10 shadow-sm shrink-0" onClick={() => setQuantity(Math.max(minQty, quantity - 1))} disabled={quantity <= minQty || isOutOfStock}>
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <span className="min-w-16 text-center font-semibold">{quantity} {unitLabels[unit] ?? unit}</span>
-                  <Button variant="outline" size="icon" className="h-10 w-10 shadow-sm" onClick={() => {
+                  <span className="min-w-14 sm:min-w-16 text-center font-semibold">{quantity} {unitLabels[unit] ?? unit}</span>
+                  <Button variant="outline" size="icon" className="h-10 w-10 shadow-sm shrink-0" onClick={() => {
                     if (quantity >= stock) {
                       toast.error(`Only ${stock} available.`);
                     } else {
@@ -395,29 +395,29 @@ export default function ProductDetail() {
                     <Plus className="h-4 w-4" />
                   </Button>
                 </div>
-                <div className="text-right md:mt-4 md:text-left">
+                <div className="text-right md:mt-4 md:text-left shrink-0">
                   <p className="text-sm text-muted-foreground md:hidden">Live Total</p>
-                  <p className="text-lg font-bold text-foreground md:text-xl">Total : {formatCurrency(price * quantity)}</p>
+                  <p className="text-lg font-bold text-foreground md:text-xl whitespace-nowrap">Total : {formatCurrency(price * quantity)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="flex flex-col gap-3 md:hidden mt-2">
-              <Button variant="outline" className="h-12 bg-card" onClick={() => addProduct("/")} disabled={isOutOfStock}>
+            <div className="flex flex-col gap-3 md:hidden mt-2 w-full min-w-0">
+              <Button variant="outline" className="h-12 bg-card w-full" onClick={() => addProduct("/")} disabled={isOutOfStock}>
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 {isOutOfStock ? "Out of Stock" : "Add & Continue Shopping"}
               </Button>
-              <Button className="h-12 bg-primary hover:bg-primary/90" onClick={() => addProduct("/info")} disabled={isOutOfStock}>
+              <Button className="h-12 bg-primary hover:bg-primary/90 w-full" onClick={() => addProduct("/info")} disabled={isOutOfStock}>
                 <Zap className="mr-2 h-4 w-4" />
                 {isOutOfStock ? "Out of Stock" : "Buy Now"}
               </Button>
             </div>
-            <div className="hidden md:grid gap-3 grid-cols-2 md:mt-4">
-              <Button variant="outline" className="h-12 bg-card" onClick={() => addProduct()} disabled={isOutOfStock}>
+            <div className="hidden md:grid gap-3 grid-cols-2 md:mt-4 w-full min-w-0">
+              <Button variant="outline" className="h-12 bg-card w-full" onClick={() => addProduct()} disabled={isOutOfStock}>
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 {isOutOfStock ? "Out of Stock" : "Add to Cart"}
               </Button>
-              <Button className="h-12 bg-primary hover:bg-primary/90" onClick={() => addProduct("/info")} disabled={isOutOfStock}>
+              <Button className="h-12 bg-primary hover:bg-primary/90 w-full" onClick={() => addProduct("/info")} disabled={isOutOfStock}>
                 <Zap className="mr-2 h-4 w-4" />
                 {isOutOfStock ? "Out of Stock" : "Buy Now"}
               </Button>
@@ -477,10 +477,10 @@ function formatSupplierAddress(product: {
 
 function DetailSection({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <Card>
-      <CardContent className="space-y-3 p-5">
-        <h2 className="font-semibold">{title}</h2>
-        <div className="text-sm text-muted-foreground">{children}</div>
+    <Card className="w-full min-w-0 overflow-hidden">
+      <CardContent className="space-y-3 p-4 sm:p-5 break-words min-w-0">
+        <h2 className="font-semibold break-words">{title}</h2>
+        <div className="text-sm text-muted-foreground break-words min-w-0">{children}</div>
       </CardContent>
     </Card>
   );

@@ -69,9 +69,16 @@
   * {
     @apply border-border;
   }
+  html,
+  body {
+    @apply max-w-full overflow-x-hidden;
+  }
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+  #root {
+    @apply min-h-screen w-full max-w-full overflow-x-hidden;
   }
 }
 
