@@ -214,12 +214,20 @@ export default function EditProduct() {
   }, [product, inventoryRecord]);
 
   const isVariantMode = options.length > 0;
-  const hasValidVariantPricing = isVariantMode && options.every((o) => o.name.trim() && (o.price || 0) > 0);
+  const hasValidVariantPricing =
+    isVariantMode &&
+    options.every((o) => {
+      if (!o.name.trim()) return false;
+      if (o.mealOptions && o.mealOptions.choices.length > 0) {
+        return o.mealOptions.choices.every((c) => c.name.trim() && (c.price || 0) > 0);
+      }
+      return (o.price || 0) > 0;
+    });
   const firstVariantWithImage = isVariantMode ? options.find((o) => o.image && o.image.trim()) : null;
   const hasValidVariantImage = isVariantMode && Boolean(firstVariantWithImage || images.length > 0);
 
   const effectiveSellingPrice = isVariantMode
-    ? (options[0]?.price || options[0]?.mealPrice || 0)
+    ? (options[0]?.mealOptions?.choices?.[0]?.price || options[0]?.price || options[0]?.mealPrice || 0)
     : toNumber(form.sellingPrice);
 
   const errors = {
@@ -340,32 +348,44 @@ export default function EditProduct() {
       images: orderedImages,
       tags: tagList,
       options: isVariantMode
-        ? options.map((opt) => ({
-            id: opt.id,
-            name: opt.name,
-            price: Number(opt.price || 0),
-            compareAtPrice: opt.compareAtPrice ? Number(opt.compareAtPrice) : null,
-            mealPrice: opt.mealPrice ? Number(opt.mealPrice) : null,
-            onlyPrice: opt.onlyPrice ? Number(opt.onlyPrice) : null,
-            image: opt.image || null,
-            includedWith: opt.includedWith?.trim() || null,
-            ...(opt.mealOptions?.label.trim() && opt.mealOptions.choices.map((choice) => choice.trim()).filter(Boolean).length > 0
-              ? {
-                  mealOptions: {
-                    label: opt.mealOptions.label.trim(),
-                    choices: opt.mealOptions.choices.map((choice) => choice.trim()).filter(Boolean),
-                  },
-                }
-              : {}),
-            ...(opt.choiceGroup?.label.trim() && opt.choiceGroup.choices.map((choice) => choice.trim()).filter(Boolean).length > 0
-              ? {
-                  choiceGroup: {
-                    label: opt.choiceGroup.label.trim(),
-                    choices: opt.choiceGroup.choices.map((choice) => choice.trim()).filter(Boolean),
-                  },
-                }
-              : {}),
-          }))
+        ? options.map((opt) => {
+            const firstChoicePrice = opt.mealOptions?.choices?.[0]?.price;
+            const primaryPrice = Number((opt.price && opt.price > 0 ? opt.price : firstChoicePrice) || 0);
+            return {
+              id: opt.id,
+              name: opt.name,
+              price: primaryPrice,
+              compareAtPrice: opt.compareAtPrice ? Number(opt.compareAtPrice) : null,
+              mealPrice: opt.mealPrice ? Number(opt.mealPrice) : null,
+              onlyPrice: opt.onlyPrice ? Number(opt.onlyPrice) : null,
+              image: opt.image || null,
+              includedWith: opt.includedWith?.trim() || null,
+              ...(opt.mealOptions?.label.trim() &&
+              opt.mealOptions.choices.map((choice) => choice.name.trim()).filter(Boolean).length > 0
+                ? {
+                    mealOptions: {
+                      label: opt.mealOptions.label.trim(),
+                      choices: opt.mealOptions.choices
+                        .filter((choice) => choice.name.trim().length > 0)
+                        .map((choice) => ({
+                          name: choice.name.trim(),
+                          description: choice.description?.trim() || null,
+                          price: Number(choice.price || 0),
+                        })),
+                    },
+                  }
+                : {}),
+              ...(opt.choiceGroup?.label.trim() &&
+              opt.choiceGroup.choices.map((choice) => choice.trim()).filter(Boolean).length > 0
+                ? {
+                    choiceGroup: {
+                      label: opt.choiceGroup.label.trim(),
+                      choices: opt.choiceGroup.choices.map((choice) => choice.trim()).filter(Boolean),
+                    },
+                  }
+                : {}),
+            };
+          })
         : [],
     });
   };
@@ -602,7 +622,7 @@ export default function EditProduct() {
                       Variant Mode Active
                     </p>
                     <p className="text-emerald-800/80 dark:text-emerald-300/80">
-                      Pricing is controlled by the {options.length} {options.length === 1 ? "option" : "options"} defined below. Standard selling price is automatically synchronized with Option #1 ({formatCurrency(options[0]?.price || 0)}).
+                      Pricing is controlled by the {options.length} {options.length === 1 ? "option" : "options"} defined below. Standard selling price is automatically synchronized with Option #1 ({formatCurrency(effectiveSellingPrice || 0)}).
                     </p>
                   </div>
                 </div>
@@ -622,7 +642,7 @@ export default function EditProduct() {
                       type="number"
                       step="0.01"
                       min="0"
-                      value={isVariantMode ? (options[0]?.price || "") : form.sellingPrice}
+                      value={isVariantMode ? (effectiveSellingPrice || "") : form.sellingPrice}
                       onChange={(event) => {
                         if (!isVariantMode) updateField("sellingPrice", event.target.value);
                       }}
@@ -633,7 +653,7 @@ export default function EditProduct() {
                   </div>
                   {isVariantMode && (
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      Auto-synced with Option #1 ({formatCurrency(options[0]?.price || 0)})
+                      Auto-synced with Option #1 ({formatCurrency(effectiveSellingPrice || 0)})
                     </p>
                   )}
                 </Field>

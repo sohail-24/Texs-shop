@@ -53,10 +53,23 @@ const productImageUrlSchema = z
     "Product images must be uploaded files, supported local product assets, or HTTP(S) URLs.",
   );
 
+const mealOptionChoiceSchema = z.union([
+  z.string().trim().min(1, "Meal option is required.").max(100).transform((name) => ({
+    name,
+    description: null as string | null,
+    price: 0,
+  })),
+  z.object({
+    name: z.string().trim().min(1, "Meal option name is required.").max(100),
+    description: z.string().trim().max(500).optional().nullable(),
+    price: z.number().min(0, "Meal option price must be non-negative."),
+  }),
+]);
+
 const productOptionSchema = z.object({
   id: z.string().optional(),
   name: z.string().trim().min(1, "Option name is required."),
-  price: z.number().min(0, "Option price must be non-negative."),
+  price: z.number().min(0, "Option price must be non-negative.").default(0),
   compareAtPrice: z.number().min(0).optional().nullable(),
   mealPrice: z.number().min(0).optional().nullable(),
   onlyPrice: z.number().min(0).optional().nullable(),
@@ -64,7 +77,7 @@ const productOptionSchema = z.object({
   includedWith: z.string().trim().max(500).optional().nullable(),
   mealOptions: z.object({
     label: z.string().trim().min(1, "Meal options label is required.").max(100),
-    choices: z.array(z.string().trim().min(1, "Meal option is required.").max(100)).min(1),
+    choices: z.array(mealOptionChoiceSchema).min(1),
   }).optional(),
   choiceGroup: z.object({
     label: z.string().trim().min(1, "Choice group label is required.").max(100),
@@ -307,8 +320,14 @@ export const productRouter = createRouter({
         const firstVariantImage = isVariantMode
           ? input.options!.find((o) => o.image && o.image.trim())?.image?.trim() || null
           : null;
+        const getOptionPrice = (o: any) => {
+          if ((o.price || 0) > 0) return o.price;
+          const firstMealChoice = o.mealOptions?.choices?.find((c: any) => (c.price || 0) > 0) || o.mealOptions?.choices?.[0];
+          if (firstMealChoice && (firstMealChoice.price || 0) > 0) return firstMealChoice.price;
+          return o.price || 0;
+        };
         const primaryVariantPrice = isVariantMode
-          ? input.options!.find((o) => (o.price || 0) > 0)?.price || input.options![0]?.price || 0
+          ? input.options!.map(getOptionPrice).find((p: number) => p > 0) || getOptionPrice(input.options![0]) || 0
           : 0;
 
         const effectiveSellingPrice = isVariantMode && (!input.sellingPrice || input.sellingPrice <= 0)
@@ -473,8 +492,14 @@ export const productRouter = createRouter({
     const firstVariantImage = isVariantMode
       ? resolvedOptions.find((o) => o.image && o.image.trim())?.image?.trim() || null
       : null;
+    const getOptionPrice = (o: any) => {
+      if ((o.price || 0) > 0) return o.price;
+      const firstMealChoice = o.mealOptions?.choices?.find((c: any) => (c.price || 0) > 0) || o.mealOptions?.choices?.[0];
+      if (firstMealChoice && (firstMealChoice.price || 0) > 0) return firstMealChoice.price;
+      return o.price || 0;
+    };
     const primaryVariantPrice = isVariantMode
-      ? resolvedOptions.find((o) => (o.price || 0) > 0)?.price || resolvedOptions[0]?.price || 0
+      ? resolvedOptions.map(getOptionPrice).find((p: number) => p > 0) || getOptionPrice(resolvedOptions[0]) || 0
       : 0;
 
     const effectiveSellingPrice = isVariantMode && (input.sellingPrice === undefined || input.sellingPrice <= 0)

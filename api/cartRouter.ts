@@ -45,7 +45,7 @@ export const cartRouter = createRouter({
       // Check product options and verify price from server database
       const options = parseProductOptions(product.options);
       let unitPrice = Number(product.unitPrice);
-      let resolvedOptionName: string | undefined = input.selectedOption?.trim() || undefined;
+      const resolvedOptionName = input.selectedOption?.trim() || undefined;
 
       if (options.length > 0) {
         if (!resolvedOptionName) {
@@ -54,24 +54,27 @@ export const cartRouter = createRouter({
             message: "Please select an option before adding to cart.",
           });
         }
-        // Match option by id, name, or meal/only label
+        // Match option by id, name, prefix, or meal/only label
         const matched = options.find((opt) =>
           opt.id === resolvedOptionName ||
           opt.name.toLowerCase() === resolvedOptionName?.toLowerCase() ||
+          resolvedOptionName?.toLowerCase().startsWith(opt.name.toLowerCase()) ||
           (opt.mealPrice && `${opt.name} (Meal)`.toLowerCase() === resolvedOptionName?.toLowerCase()) ||
           (opt.onlyPrice && `${opt.name} (Only)`.toLowerCase() === resolvedOptionName?.toLowerCase())
         );
 
         if (matched) {
-          if (matched.mealPrice && resolvedOptionName.toLowerCase().includes("meal")) {
+          const mealChoice = matched.mealOptions?.choices?.find((c) =>
+            resolvedOptionName?.toLowerCase().includes(c.name.toLowerCase())
+          );
+          if (mealChoice && mealChoice.price > 0) {
+            unitPrice = mealChoice.price;
+          } else if (matched.mealPrice && resolvedOptionName?.toLowerCase().includes("meal")) {
             unitPrice = matched.mealPrice;
-            resolvedOptionName = `${matched.name} (Meal)`;
-          } else if (matched.onlyPrice && resolvedOptionName.toLowerCase().includes("only")) {
+          } else if (matched.onlyPrice && resolvedOptionName?.toLowerCase().includes("only")) {
             unitPrice = matched.onlyPrice;
-            resolvedOptionName = `${matched.name} (Only)`;
           } else {
             unitPrice = matched.price;
-            resolvedOptionName = matched.name;
           }
         }
       }

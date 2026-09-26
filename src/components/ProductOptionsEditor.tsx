@@ -22,29 +22,192 @@ export function getPresetOptions(presetName: string, basePrice?: number | string
   let presetOptions: ProductOption[] = [];
   if (presetName === "signature-chicken") {
     presetOptions = [
-      { id: nanoid(6), name: "2 PC", price: 7.49, mealPrice: 10.49, onlyPrice: 7.49 },
-      { id: nanoid(6), name: "3 PC", price: 9.49, mealPrice: 12.49, onlyPrice: 9.49 },
-      { id: nanoid(6), name: "4 PC", price: 11.49, mealPrice: 14.49, onlyPrice: 11.49 },
+      {
+        id: nanoid(6),
+        name: "2 PC",
+        price: 10.49,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Biscuit", price: 10.49 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 11.49 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
+      {
+        id: nanoid(6),
+        name: "3 PC",
+        price: 12.49,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Biscuit", price: 12.49 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 13.49 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
+      {
+        id: nanoid(6),
+        name: "4 PC",
+        price: 14.49,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Biscuit", price: 14.49 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 15.49 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
     ];
   } else if (presetName === "fiery-wings") {
     presetOptions = [
-      { id: nanoid(6), name: "6 PC", price: 8.99, mealPrice: 11.99, onlyPrice: 8.99 },
-      { id: nanoid(6), name: "15 PC", price: 19.99, mealPrice: 22.99, onlyPrice: 19.99 },
+      {
+        id: nanoid(6),
+        name: "6 PC",
+        price: 11.99,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Dip", price: 11.99 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 12.99 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
+      {
+        id: nanoid(6),
+        name: "15 PC",
+        price: 22.99,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Dip", price: 22.99 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 24.99 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
     ];
   } else if (presetName === "sandwich") {
     presetOptions = [
-      { id: nanoid(6), name: "Classic", price: 6.99, mealPrice: 9.99, onlyPrice: 6.99 },
-      { id: nanoid(6), name: "Deluxe", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
-      { id: nanoid(6), name: "Grilled", price: 8.49, mealPrice: 11.49, onlyPrice: 8.49 },
+      {
+        id: nanoid(6),
+        name: "Classic",
+        price: 5.88,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 5.88 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 6.88 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
+      {
+        id: nanoid(6),
+        name: "Deluxe",
+        price: 6.88,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 6.88 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 7.88 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
+      {
+        id: nanoid(6),
+        name: "Grilled",
+        price: 7.38,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 7.38 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 8.38 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
     ];
   } else if (presetName === "tenders") {
     presetOptions = [
-      { id: nanoid(6), name: "3 PC", price: 6.49, mealPrice: 9.49, onlyPrice: 6.49 },
-      { id: nanoid(6), name: "5 PC", price: 9.99, mealPrice: 12.99, onlyPrice: 9.99 },
+      {
+        id: nanoid(6),
+        name: "3 PC",
+        price: 9.49,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Dip", price: 9.49 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 10.49 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
+      {
+        id: nanoid(6),
+        name: "5 PC",
+        price: 12.99,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Dip", price: 12.99 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 13.99 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
     ];
   } else if (presetName === "meal-only") {
     presetOptions = [
-      { id: nanoid(6), name: "Regular Order", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
+      {
+        id: nanoid(6),
+        name: "Regular Order",
+        price: 10.99,
+        mealPrice: null,
+        onlyPrice: null,
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Drink", price: 10.99 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 11.99 },
+          ],
+        },
+        choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] },
+      },
     ];
   }
   return presetOptions;
@@ -76,15 +239,27 @@ export function ProductOptionsEditor({
   };
 
   const addOption = () => {
+    const base = toNumber(basePrice) || 5.88;
     const newOption: ProductOption = {
       id: nanoid(6),
       name: `Option ${options.length + 1}`,
-      price: toNumber(basePrice) || 9.99,
+      price: base,
       compareAtPrice: null,
       mealPrice: null,
       onlyPrice: null,
       image: null,
       includedWith: null,
+      mealOptions: {
+        label: "Select Option",
+        choices: [
+          { name: "Meal", description: "1 Reg Side & Red Drink", price: base },
+          { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: +(base + 1).toFixed(2) },
+        ],
+      },
+      choiceGroup: {
+        label: "Select one",
+        choices: ["Mild", "Spicy"],
+      },
     };
     onChange([...options, newOption]);
   };
@@ -362,72 +537,150 @@ export function ProductOptionsEditor({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div>
-                          <Label className="text-[11px] font-bold text-foreground">Primary Price ($) *</Label>
-                          <div className="relative mt-1">
-                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={opt.price ?? ""}
-                              onChange={(e) =>
-                                updateOption(opt.id, { price: e.target.value ? Number(e.target.value) : 0 })
-                              }
-                              placeholder="9.99"
-                              className="h-8 text-xs font-medium pl-6"
-                            />
-                          </div>
-                        </div>
+                      {/* Meal Options */}
+                      {(() => {
+                        const currentMealOptions: import("@/types").ProductMealOptionsGroup = opt.mealOptions ?? {
+                          label: "Select Option",
+                          choices: [
+                            { name: "Meal", description: "1 Reg Side & Red Drink", price: opt.price || 5.88 },
+                            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: opt.price ? +(opt.price + 1).toFixed(2) : 6.88 },
+                          ],
+                        };
 
-                        <div>
-                          <Label className="text-[11px] font-normal text-muted-foreground">Combo Meal Price ($)</Label>
-                          <div className="relative mt-1">
-                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={opt.mealPrice ?? ""}
-                              onChange={(e) =>
-                                updateOption(opt.id, {
-                                  mealPrice: e.target.value ? Number(e.target.value) : null,
-                                })
-                              }
-                              placeholder="Optional (e.g. 12.99)"
-                              className="h-8 text-xs pl-6"
-                            />
-                          </div>
-                        </div>
+                        return (
+                          <div className="rounded-md border border-dashed border-border/80 bg-muted/15 p-3 space-y-3">
+                            <div>
+                              <Label className="text-[11px] font-bold text-foreground">Meal Options</Label>
+                              <p className="text-[10px] text-muted-foreground">
+                                Customer selection for meal formats (e.g. Meal, Large Meals). Each choice sets its own price.
+                              </p>
+                            </div>
 
-                        <div>
-                          <Label className="text-[11px] font-normal text-muted-foreground">Only Price ($)</Label>
-                          <div className="relative mt-1">
-                            <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                              $
-                            </span>
-                            <Input
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              value={opt.onlyPrice ?? ""}
-                              onChange={(e) =>
-                                updateOption(opt.id, {
-                                  onlyPrice: e.target.value ? Number(e.target.value) : null,
-                                })
-                              }
-                              placeholder="Optional (e.g. 8.99)"
-                              className="h-8 text-xs pl-6"
-                            />
-                          </div>
-                        </div>
-                      </div>
+                            <div className="space-y-3 pt-1">
+                              <div>
+                                <Label className="text-[11px] font-medium text-foreground">Label</Label>
+                                <Input
+                                  value={currentMealOptions.label}
+                                  onChange={(e) => {
+                                    const nextMealOptions = { ...currentMealOptions, label: e.target.value };
+                                    updateOption(opt.id, { mealOptions: nextMealOptions });
+                                  }}
+                                  placeholder="Select Option"
+                                  className="mt-1 h-8 text-xs"
+                                />
+                              </div>
 
+                              <div className="space-y-2.5">
+                                <Label className="text-[11px] font-medium text-foreground">Choices</Label>
+                                {currentMealOptions.choices.map((choice, choiceIndex) => (
+                                  <div key={choiceIndex} className="rounded-md border bg-card p-3 space-y-2 shadow-2xs">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-[11px] font-bold text-foreground">
+                                        Choice #{choiceIndex + 1}
+                                      </span>
+                                      {currentMealOptions.choices.length > 1 && (
+                                        <Button
+                                          type="button"
+                                          variant="ghost"
+                                          size="sm"
+                                          className="h-6 px-2 text-[11px] text-destructive hover:text-destructive hover:bg-destructive/10"
+                                          onClick={() => {
+                                            const nextChoices = currentMealOptions.choices.filter((_, index) => index !== choiceIndex);
+                                            const nextGroup = { ...currentMealOptions, choices: nextChoices };
+                                            updateOption(opt.id, {
+                                              mealOptions: nextGroup,
+                                              price: nextChoices[0]?.price ?? opt.price,
+                                            });
+                                          }}
+                                        >
+                                          Remove Choice
+                                        </Button>
+                                      )}
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
+                                      <div className="sm:col-span-4">
+                                        <Label className="text-[10px] font-medium text-foreground">Name *</Label>
+                                        <Input
+                                          value={choice.name}
+                                          onChange={(e) => {
+                                            const choices = [...currentMealOptions.choices];
+                                            choices[choiceIndex] = { ...choice, name: e.target.value };
+                                            updateOption(opt.id, { mealOptions: { ...currentMealOptions, choices } });
+                                          }}
+                                          placeholder={choiceIndex === 0 ? "Meal" : "Large Meals"}
+                                          className="mt-1 h-8 text-xs font-medium"
+                                        />
+                                      </div>
+
+                                      <div className="sm:col-span-5">
+                                        <Label className="text-[10px] font-medium text-muted-foreground">What Comes With It</Label>
+                                        <Input
+                                          value={choice.description ?? ""}
+                                          onChange={(e) => {
+                                            const choices = [...currentMealOptions.choices];
+                                            choices[choiceIndex] = { ...choice, description: e.target.value };
+                                            updateOption(opt.id, { mealOptions: { ...currentMealOptions, choices } });
+                                          }}
+                                          placeholder={choiceIndex === 0 ? "1 Reg Side & Red Drink" : "2 Reg Sides & Lg Drink"}
+                                          className="mt-1 h-8 text-xs"
+                                        />
+                                      </div>
+
+                                      <div className="sm:col-span-3">
+                                        <Label className="text-[10px] font-bold text-foreground">Price ($) *</Label>
+                                        <div className="relative mt-1">
+                                          <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                                            $
+                                          </span>
+                                          <Input
+                                            type="number"
+                                            step="0.01"
+                                            min="0"
+                                            value={choice.price || ""}
+                                            onChange={(e) => {
+                                              const val = e.target.value ? Number(e.target.value) : 0;
+                                              const choices = [...currentMealOptions.choices];
+                                              choices[choiceIndex] = { ...choice, price: val };
+                                              const newBase = choiceIndex === 0 ? val : (currentMealOptions.choices[0]?.price || val);
+                                              updateOption(opt.id, {
+                                                mealOptions: { ...currentMealOptions, choices },
+                                                price: newBase,
+                                              });
+                                            }}
+                                            placeholder={choiceIndex === 0 ? "5.88" : "6.88"}
+                                            className="h-8 text-xs font-bold pl-6"
+                                          />
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-7 px-2 text-[11px]"
+                                  onClick={() => {
+                                    const choices = [
+                                      ...currentMealOptions.choices,
+                                      { name: "", description: "", price: 0 },
+                                    ];
+                                    updateOption(opt.id, {
+                                      mealOptions: { ...currentMealOptions, choices },
+                                    });
+                                  }}
+                                >
+                                  <Plus className="mr-1 h-3 w-3" /> Add Choice
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      {/* Choice Group */}
                       <div className="rounded-md border border-dashed border-border/80 bg-muted/15 p-3 space-y-2">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <div>
@@ -450,7 +703,7 @@ export function ProductOptionsEditor({
                               variant="outline"
                               size="sm"
                               className="h-7 px-2 text-[11px]"
-                              onClick={() => updateOption(opt.id, { choiceGroup: { label: "", choices: [""] } })}
+                              onClick={() => updateOption(opt.id, { choiceGroup: { label: "Select one", choices: ["Mild", "Spicy"] } })}
                             >
                               <Plus className="mr-1 h-3 w-3" /> Add Choice Group
                             </Button>
@@ -460,13 +713,13 @@ export function ProductOptionsEditor({
                         {opt.choiceGroup && (
                           <div className="space-y-2 pt-1">
                             <div>
-                              <Label className="text-[11px] font-medium text-foreground">Choice Group Label</Label>
+                              <Label className="text-[11px] font-medium text-foreground">Label</Label>
                               <Input
                                 value={opt.choiceGroup.label}
                                 onChange={(e) => updateOption(opt.id, {
                                   choiceGroup: { ...opt.choiceGroup!, label: e.target.value },
                                 })}
-                                placeholder="e.g. Spice Level"
+                                placeholder="Select one"
                                 className="mt-1 h-8 text-xs"
                               />
                             </div>
@@ -481,7 +734,7 @@ export function ProductOptionsEditor({
                                       choices[choiceIndex] = e.target.value;
                                       updateOption(opt.id, { choiceGroup: { ...opt.choiceGroup!, choices } });
                                     }}
-                                    placeholder="e.g. Mild"
+                                    placeholder={choiceIndex === 0 ? "Mild" : "Spicy"}
                                     className="h-8 text-xs"
                                   />
                                   <Button
@@ -506,7 +759,7 @@ export function ProductOptionsEditor({
                                 size="sm"
                                 className="h-7 px-2 text-[11px]"
                                 onClick={() => updateOption(opt.id, {
-                                  choiceGroup: { ...opt.choiceGroup!, choices: [...opt.choiceGroup!.choices, ""] },
+                                  choiceGroup: { ...opt.choiceGroup!, choices: [...(opt.choiceGroup!.choices || []), ""] },
                                 })}
                               >
                                 <Plus className="mr-1 h-3 w-3" /> Add Choice
@@ -529,7 +782,11 @@ export function ProductOptionsEditor({
               </p>
               <p className="text-[11px] text-emerald-800/80 dark:text-emerald-400 mt-1">
                 Customers on the product page will see radio selection buttons for each option (
-                {options.map((o) => `${o.name}${o.includedWith ? ` [${o.includedWith}]` : ''}: ${formatCurrency(o.price)}`).join(", ")}) and cannot add the item to cart without selecting their option.
+                {options.map((o) => {
+                  const mealPrices = o.mealOptions?.choices?.filter(c => (c.price || 0) > 0).map(c => `${c.name}: ${formatCurrency(c.price)}`).join(", ");
+                  const displayPrice = mealPrices || formatCurrency(o.price);
+                  return `${o.name}${o.includedWith ? ` [${o.includedWith}]` : ''} (${displayPrice})`;
+                }).join(", ")}) and cannot add the item to cart without selecting their option.
               </p>
             </div>
           </div>

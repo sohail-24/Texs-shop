@@ -20,6 +20,7 @@ export default function ProductDetail() {
   const [imageFailed, setImageFailed] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [selectedOptionId, setSelectedOptionId] = useState<string>("");
+  const [selectedMealChoiceName, setSelectedMealChoiceName] = useState<string>("");
   const [selectedPricingMode, setSelectedPricingMode] = useState<"standard" | "meal" | "only">("standard");
   const [selectedChoice, setSelectedChoice] = useState<string>("");
 
@@ -48,9 +49,19 @@ export default function ProductDetail() {
       if (!selectedOptionId || !productOptions.some((o) => o.id === selectedOptionId)) {
         const first = productOptions[0];
         setSelectedOptionId(first.id);
-        if (first.mealPrice && !first.onlyPrice) setSelectedPricingMode("meal");
-        else if (first.onlyPrice && !first.mealPrice) setSelectedPricingMode("only");
-        else setSelectedPricingMode("standard");
+        if (first.mealOptions?.choices?.length) {
+          setSelectedMealChoiceName(first.mealOptions.choices[0].name);
+        } else if (first.mealPrice && !first.onlyPrice) {
+          setSelectedPricingMode("meal");
+        } else if (first.onlyPrice && !first.mealPrice) {
+          setSelectedPricingMode("only");
+        } else {
+          setSelectedPricingMode("standard");
+        }
+
+        if (first.choiceGroup?.choices?.length) {
+          setSelectedChoice(first.choiceGroup.choices[0]);
+        }
       }
     }
   }, [productOptions, selectedOptionId]);
@@ -60,11 +71,38 @@ export default function ProductDetail() {
     return productOptions.find((opt) => opt.id === selectedOptionId) || productOptions[0];
   }, [hasOptions, productOptions, selectedOptionId]);
 
+  const selectedMealChoice = useMemo(() => {
+    if (!selectedOption?.mealOptions?.choices?.length) return null;
+    return (
+      selectedOption.mealOptions.choices.find((c) => c.name === selectedMealChoiceName) ||
+      selectedOption.mealOptions.choices[0]
+    );
+  }, [selectedOption, selectedMealChoiceName]);
+
   const choiceGroup = selectedOption?.choiceGroup;
 
+  // Synchronize meal option and choice group when style changes
   useEffect(() => {
-    setSelectedChoice("");
-  }, [selectedOption?.id]);
+    if (!selectedOption) return;
+
+    if (selectedOption.mealOptions?.choices?.length) {
+      setSelectedMealChoiceName((current) => {
+        const exists = selectedOption.mealOptions!.choices.some((c) => c.name === current);
+        return exists ? current : selectedOption.mealOptions!.choices[0].name;
+      });
+    } else {
+      setSelectedMealChoiceName("");
+    }
+
+    if (selectedOption.choiceGroup?.choices?.length) {
+      setSelectedChoice((current) => {
+        const exists = selectedOption.choiceGroup!.choices.includes(current);
+        return exists ? current : selectedOption.choiceGroup!.choices[0];
+      });
+    } else {
+      setSelectedChoice("");
+    }
+  }, [selectedOption]);
 
   const activeIncludedWith = useMemo(() => {
     if (hasOptions) {
@@ -83,6 +121,9 @@ export default function ProductDetail() {
 
   const price = useMemo(() => {
     if (!selectedOption) return toNumber(product?.unitPrice);
+    if (selectedMealChoice && (selectedMealChoice.price || 0) > 0) {
+      return selectedMealChoice.price;
+    }
     if (selectedPricingMode === "meal" && selectedOption.mealPrice) {
       return selectedOption.mealPrice;
     }
@@ -90,7 +131,7 @@ export default function ProductDetail() {
       return selectedOption.onlyPrice;
     }
     return selectedOption.price || toNumber(product?.unitPrice);
-  }, [selectedOption, selectedPricingMode, product?.unitPrice]);
+  }, [selectedOption, selectedMealChoice, selectedPricingMode, product?.unitPrice]);
 
   const compareAt = useMemo(() => {
     // In variant mode, compare price must come from the selected variant option
@@ -126,6 +167,15 @@ export default function ProductDetail() {
 
   const resolvedOptionLabel = useMemo(() => {
     if (!selectedOption) return undefined;
+    if (selectedMealChoice && selectedChoice) {
+      return `${selectedOption.name} - ${selectedMealChoice.name} (${selectedChoice})`;
+    }
+    if (selectedMealChoice) {
+      return `${selectedOption.name} - ${selectedMealChoice.name}`;
+    }
+    if (selectedChoice) {
+      return `${selectedOption.name} (${selectedChoice})`;
+    }
     if (selectedPricingMode === "meal" && selectedOption.mealPrice) {
       return `${selectedOption.name} (Meal)`;
     }
@@ -133,7 +183,7 @@ export default function ProductDetail() {
       return `${selectedOption.name} (Only)`;
     }
     return selectedOption.name;
-  }, [selectedOption, selectedPricingMode]);
+  }, [selectedOption, selectedMealChoice, selectedChoice, selectedPricingMode]);
 
   const related = useMemo(
     () => (relatedQuery.data ?? []).filter((item) => item.slug !== product?.slug).slice(0, 4),
@@ -180,8 +230,12 @@ export default function ProductDetail() {
       toast.error("Please select an option before adding to cart.");
       return;
     }
-    if (choiceGroup && !selectedChoice) {
-      toast.error(`Please select ${choiceGroup.label}.`);
+    if (selectedOption?.mealOptions?.choices?.length && !selectedMealChoice) {
+      toast.error("Please select a meal option.");
+      return;
+    }
+    if (choiceGroup && choiceGroup.choices.length > 0 && !selectedChoice) {
+      toast.error(`Please select ${choiceGroup.label || "an option"}.`);
       return;
     }
 
@@ -222,6 +276,7 @@ export default function ProductDetail() {
       </section>
 
       <section className="grid gap-6 lg:gap-8 lg:grid-cols-[330px_1fr] w-full min-w-0">
+        {/* 1. Product Main Image */}
         <div className="w-full max-w-[290px] sm:max-w-[330px] mx-auto lg:max-w-none overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-3 sm:p-4 shadow-xs">
           <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
             {currentImage && !imageFailed ? (
@@ -240,8 +295,9 @@ export default function ProductDetail() {
         </div>
 
         <div className="space-y-4 w-full min-w-0">
+          {/* 2. Product Name & Price */}
           <div className="w-full min-w-0">
-            <div className="flex items-baseline justify-between gap-4 w-full min-w-0">
+            <div className="flex items-baseline justify-between gap-3 sm:gap-4 w-full min-w-0">
               <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-foreground min-w-0 break-words flex-1">
                 {product.name}
               </h1>
@@ -261,85 +317,169 @@ export default function ProductDetail() {
                 {activeIncludedWith}
               </p>
             )}
-            <p className="mt-1 text-xs text-muted-foreground/80 break-words min-w-0">by {product.supplierName ?? "Tex’s Chicken & Burgers"}</p>
+            <p className="mt-1 text-xs text-muted-foreground/80 break-words min-w-0">
+              by {product.supplierName ?? "Tex’s Chicken & Burgers"}
+            </p>
           </div>
 
-          {/* Product Options / Variants Selector */}
+          {/* 3. Product Information */}
+          <div className="grid gap-2 text-xs sm:text-sm text-muted-foreground grid-cols-1 sm:grid-cols-2 w-full min-w-0 pt-0.5">
+            <p className="break-words min-w-0">
+              <span className="font-medium text-foreground">Serving / Portion:</span>{" "}
+              {resolvedOptionLabel || product.unitSize || "1 Order"}
+            </p>
+            <p className="break-words min-w-0">
+              <span className="font-medium text-foreground">Category:</span>{" "}
+              {product.categoryName ?? "Halal Food"}
+            </p>
+            {product.origin && (
+              <p className="break-words min-w-0">
+                <span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}
+              </p>
+            )}
+            {product.season && (
+              <p className="break-words min-w-0">
+                <span className="font-medium text-foreground">Served With:</span> {product.season}
+              </p>
+            )}
+          </div>
+
+          {/* 4. Choose Style + 5. Meal Options + 6. Mild / Spicy Choice Group */}
           {hasOptions && (
-            <div className="space-y-3 rounded-xl border border-border/80 bg-muted/20 p-4 shadow-sm w-full min-w-0 overflow-hidden">
-              <div className="flex items-center gap-x-2.5 gap-y-1.5 flex-wrap min-w-0 w-full">
-                <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-foreground shrink-0 whitespace-nowrap">
-                  <Utensils className="h-4 w-4 text-emerald-600 shrink-0" />
-                  Choose Style
-                </span>
-                <span className="text-[11px] sm:text-xs font-normal text-destructive shrink-0 whitespace-nowrap">
-                  • Required
-                </span>
-                {resolvedOptionLabel && (
-                  <span className="text-[11px] sm:text-xs text-muted-foreground font-medium min-w-0 break-words max-w-full">
-                    Current: <strong className="font-semibold text-foreground">{resolvedOptionLabel}</strong>
-                  </span>
-                )}
+            <div className="space-y-4 rounded-xl border border-border/80 bg-muted/20 p-3.5 sm:p-4 shadow-xs w-full min-w-0 overflow-hidden">
+              {/* 4. Choose Style */}
+              <div className="space-y-2.5 w-full min-w-0">
+                <div className="flex items-center justify-between gap-x-2.5 gap-y-1 flex-wrap min-w-0 w-full">
+                  <div className="inline-flex items-center gap-1.5 min-w-0">
+                    <Utensils className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span className="text-xs sm:text-sm font-semibold text-foreground shrink-0">
+                      Choose Style
+                    </span>
+                    <span className="text-[11px] sm:text-xs font-normal text-destructive shrink-0">
+                      • Required
+                    </span>
+                  </div>
+                  {selectedOption && (
+                    <span className="text-[11px] sm:text-xs text-muted-foreground font-medium truncate max-w-full">
+                      Selected: <strong className="font-semibold text-foreground">{selectedOption.name}</strong>
+                    </span>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 sm:gap-2.5 w-full min-w-0">
+                  {productOptions.map((opt) => {
+                    const isSelected = selectedOption?.id === opt.id;
+                    const optionImage = opt.image || product.image;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setSelectedOptionId(opt.id)}
+                        className={`min-w-0 overflow-hidden rounded-lg border text-left transition-all cursor-pointer ${
+                          isSelected
+                            ? "border-emerald-600 bg-emerald-50/80 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/20 shadow-xs"
+                            : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
+                        }`}
+                      >
+                        <div className="aspect-square w-full overflow-hidden bg-muted/30">
+                          {optionImage ? (
+                            <img
+                              src={resolveProductImageUrl(optionImage)}
+                              alt={`${product.name} - ${opt.name}`}
+                              className="h-full w-full object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <Package className="h-6 w-6 text-muted-foreground/35" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1 p-1.5 sm:p-2 min-w-0">
+                          <div
+                            className={`h-3 w-3 sm:h-3.5 sm:w-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                              isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-muted-foreground/40"
+                            }`}
+                          >
+                            {isSelected && <Check className="h-1.5 w-1.5 sm:h-2 sm:w-2 stroke-[3]" />}
+                          </div>
+                          <p className="min-w-0 truncate text-[11px] sm:text-xs font-semibold leading-tight text-foreground">
+                            {opt.name}
+                          </p>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-2 sm:gap-2.5 w-full min-w-0">
-                {productOptions.map((opt) => {
-                  const isSelected = selectedOption?.id === opt.id;
-                  const optionImage = opt.image || product.image;
-                  return (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedOptionId(opt.id);
-                        if (opt.mealPrice && !opt.onlyPrice) setSelectedPricingMode("meal");
-                        else if (opt.onlyPrice && !opt.mealPrice) setSelectedPricingMode("only");
-                        else if (!opt.mealPrice && !opt.onlyPrice) setSelectedPricingMode("standard");
-                      }}
-                      className={`min-w-0 overflow-hidden rounded-lg border text-left transition-all ${
-                        isSelected
-                          ? "border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/20 shadow-sm"
-                          : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
-                      }`}
-                    >
-                      <div className="aspect-square w-full overflow-hidden bg-muted/30">
-                        {optionImage ? (
-                          <img
-                            src={resolveProductImageUrl(optionImage)}
-                            alt={`${product.name} - ${opt.name}`}
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Package className="h-7 w-7 text-muted-foreground/35" />
-                          </div>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 p-2 min-w-0">
-                        <div
-                          className={`h-3.5 w-3.5 rounded-full border flex items-center justify-center shrink-0 ${
-                            isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-muted-foreground/40"
+              {/* 5. Meal Options */}
+              {selectedOption?.mealOptions?.choices && selectedOption.mealOptions.choices.length > 0 && (
+                <div className="pt-3 border-t border-border/60 w-full min-w-0">
+                  <div className="flex items-center gap-x-2 gap-y-1 flex-wrap min-w-0 w-full mb-2">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">
+                      {selectedOption.mealOptions.label || "Select Option"}
+                    </p>
+                    <span className="text-[11px] sm:text-xs font-normal text-destructive">• Required</span>
+                  </div>
+
+                  <div className="space-y-2 w-full min-w-0">
+                    {selectedOption.mealOptions.choices.map((choice) => {
+                      const isSelected = selectedMealChoice?.name === choice.name;
+                      return (
+                        <button
+                          key={choice.name}
+                          type="button"
+                          onClick={() => setSelectedMealChoiceName(choice.name)}
+                          className={`w-full min-w-0 rounded-lg border p-2.5 sm:p-3 text-left transition-all flex items-start gap-2.5 sm:gap-3 cursor-pointer ${
+                            isSelected
+                              ? "border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-1 ring-emerald-500/30 shadow-xs"
+                              : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/20"
                           }`}
                         >
-                          {isSelected && <Check className="h-2 w-2 stroke-[3]" />}
-                        </div>
-                        <p className="min-w-0 line-clamp-2 break-words text-xs sm:text-sm font-semibold leading-tight text-foreground">{opt.name}</p>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
+                          <div
+                            className={`mt-0.5 h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
+                              isSelected
+                                ? "border-emerald-600 bg-emerald-600 text-white"
+                                : "border-muted-foreground/40 bg-background"
+                            }`}
+                          >
+                            {isSelected && <div className="h-1.5 w-1.5 rounded-full bg-white" />}
+                          </div>
 
-              {/* Meal vs Only Toggle if Selected Option Offers Both */}
-              {selectedOption && (selectedOption.mealPrice || selectedOption.onlyPrice) && (
-                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
-                  <p className="text-xs sm:text-sm font-semibold text-foreground mb-2">Select Option <span className="font-normal text-destructive">• Required</span></p>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-baseline justify-between gap-2 w-full min-w-0">
+                              <span className="text-xs sm:text-sm font-semibold text-foreground truncate">
+                                {choice.name}
+                              </span>
+                              <span className="text-xs sm:text-sm font-bold text-emerald-700 dark:text-emerald-400 shrink-0 ml-2">
+                                {formatCurrency(choice.price)}
+                              </span>
+                            </div>
+                            {choice.description && choice.description.trim() && (
+                              <p className="mt-0.5 text-[11px] sm:text-xs text-muted-foreground leading-normal break-words">
+                                {choice.description.trim()}
+                              </p>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Backward compatibility: Legacy Meal vs Only Toggle if Selected Option Offers Both without mealOptions */}
+              {selectedOption && !selectedOption.mealOptions?.choices?.length && (selectedOption.mealPrice || selectedOption.onlyPrice) && (
+                <div className="pt-3 border-t border-border/60 w-full min-w-0">
+                  <p className="text-xs sm:text-sm font-semibold text-foreground mb-2">
+                    Select Option <span className="font-normal text-destructive">• Required</span>
+                  </p>
                   <div className="grid grid-cols-2 gap-2 w-full min-w-0">
                     {selectedOption.onlyPrice != null && (
                       <button
                         type="button"
                         onClick={() => setSelectedPricingMode("only")}
-                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate ${
+                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate cursor-pointer ${
                           selectedPricingMode === "only"
                             ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
                             : "border-border bg-card hover:bg-muted text-foreground"
@@ -352,7 +492,7 @@ export default function ProductDetail() {
                       <button
                         type="button"
                         onClick={() => setSelectedPricingMode("meal")}
-                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate ${
+                        className={`py-2 px-2 sm:px-3 rounded-md border text-center text-xs font-semibold transition-all min-w-0 truncate cursor-pointer ${
                           selectedPricingMode === "meal"
                             ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
                             : "border-border bg-card hover:bg-muted text-foreground"
@@ -365,14 +505,16 @@ export default function ProductDetail() {
                 </div>
               )}
 
-              {choiceGroup && (
-                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs sm:text-sm font-semibold text-foreground">{choiceGroup.label}</p>
+              {/* 6. Choice Group (Mild / Spicy) */}
+              {choiceGroup && choiceGroup.choices.length > 0 && (
+                <div className="pt-3 border-t border-border/60 w-full min-w-0">
+                  <div className="flex items-center gap-x-2 gap-y-1 flex-wrap min-w-0 w-full mb-1.5">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">
+                      {choiceGroup.label || "Select one"}
+                    </p>
                     <span className="text-[11px] sm:text-xs font-normal text-destructive">• Required</span>
                   </div>
-                  <p className="mt-1 text-[11px] text-muted-foreground">Select one</p>
-                  <div className="mt-2 flex flex-wrap gap-2 w-full min-w-0">
+                  <div className="flex flex-wrap gap-2 w-full min-w-0">
                     {choiceGroup.choices.map((choice) => {
                       const isSelected = selectedChoice === choice;
                       return (
@@ -381,7 +523,7 @@ export default function ProductDetail() {
                           type="button"
                           aria-pressed={isSelected}
                           onClick={() => setSelectedChoice(choice)}
-                          className={`min-w-0 rounded-md border px-3 py-2 text-xs font-semibold transition-all ${
+                          className={`min-w-0 rounded-md border px-4 py-2 text-xs font-semibold transition-all cursor-pointer ${
                             isSelected
                               ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
                               : "border-border bg-card text-foreground hover:bg-muted"
@@ -397,18 +539,8 @@ export default function ProductDetail() {
             </div>
           )}
 
-          <div className="grid gap-2 text-sm text-muted-foreground sm:grid-cols-2 w-full min-w-0">
-            <p className="break-words min-w-0"><span className="font-medium text-foreground">Serving / Portion:</span> {resolvedOptionLabel || product.unitSize || "1 Order"}</p>
-            <p className="break-words min-w-0"><span className="font-medium text-foreground">Category:</span> {product.categoryName ?? "Halal Food"}</p>
-            {product.origin && (
-              <p className="break-words min-w-0"><span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}</p>
-            )}
-            {product.season && (
-              <p className="break-words min-w-0"><span className="font-medium text-foreground">Served With:</span> {product.season}</p>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3 mt-6 md:mt-0 w-full min-w-0">
+          {/* 7. Quantity / Add to Cart */}
+          <div className="flex flex-col gap-3 mt-4 md:mt-2 w-full min-w-0">
             <div className="flex flex-col gap-2 md:block md:space-y-2 w-full min-w-0">
               <p className="text-sm font-medium hidden md:block">Quantity</p>
               <div className="flex items-center justify-between md:justify-start gap-3 sm:gap-4 flex-wrap w-full min-w-0">

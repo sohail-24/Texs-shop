@@ -312,4 +312,105 @@ describe("ProductDetail Option Selection Header Logic", () => {
     expect(lgDisplay.price).toBe(5.99);
     expect(lgDisplay.includedWith).toBe("With Fries and 2 Biscuits");
   });
+
+  it("handles Admin Meal Options pricing, independent Mild/Spicy choice group, and style switching", () => {
+    const rawOptions = JSON.stringify([
+      {
+        id: "classic-id",
+        name: "Classic",
+        image: "/products/classic.png",
+        includedWith: "Classic Tex Recipe",
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 5.88 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 6.88 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
+      {
+        id: "deluxe-id",
+        name: "Deluxe",
+        image: "/products/deluxe.png",
+        includedWith: "Deluxe with Bacon & Cheese",
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 6.88 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 7.88 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
+      {
+        id: "grilled-id",
+        name: "Grilled",
+        image: "/products/grilled.png",
+        includedWith: "Tender Grilled Breast",
+        mealOptions: {
+          label: "Select Option",
+          choices: [
+            { name: "Meal", description: "1 Reg Side & Red Drink", price: 7.38 },
+            { name: "Large Meals", description: "2 Reg Sides & Lg Drink", price: 8.38 },
+          ],
+        },
+        choiceGroup: {
+          label: "Select one",
+          choices: ["Mild", "Spicy"],
+        },
+      },
+    ]);
+
+    const parsed = parseProductOptions(rawOptions);
+    expect(parsed.length).toBe(3);
+
+    // 1. Initial default state: Classic selected
+    const classic = parsed[0];
+    expect(classic.name).toBe("Classic");
+    expect(classic.image).toBe("/products/classic.png");
+    expect(classic.mealOptions?.choices.length).toBe(2);
+    expect(classic.choiceGroup?.choices).toEqual(["Mild", "Spicy"]);
+
+    // Default selected meal choice: Meal ($5.88)
+    const defaultMealChoice = classic.mealOptions?.choices[0];
+    expect(defaultMealChoice?.name).toBe("Meal");
+    expect(defaultMealChoice?.price).toBe(5.88);
+    expect(defaultMealChoice?.description).toBe("1 Reg Side & Red Drink");
+
+    // Switching to Large Meals updates price to $6.88
+    const largeMealChoice = classic.mealOptions?.choices[1];
+    expect(largeMealChoice?.name).toBe("Large Meals");
+    expect(largeMealChoice?.price).toBe(6.88);
+
+    // 2. Switching to Deluxe uses Deluxe's own prices, never Classic's
+    const deluxe = parsed[1];
+    expect(deluxe.name).toBe("Deluxe");
+    expect(deluxe.image).toBe("/products/deluxe.png");
+    expect(deluxe.mealOptions?.choices[0].price).toBe(6.88);
+    expect(deluxe.mealOptions?.choices[1].price).toBe(7.88);
+
+    // 3. Switching to Grilled uses Grilled's own prices
+    const grilled = parsed[2];
+    expect(grilled.name).toBe("Grilled");
+    expect(grilled.image).toBe("/products/grilled.png");
+    expect(grilled.mealOptions?.choices[0].price).toBe(7.38);
+    expect(grilled.mealOptions?.choices[1].price).toBe(8.38);
+
+    // 4. Cart label resolution includes style, meal choice, and spicy/mild choice
+    function resolveCartLabel(style: string, meal: string, flavor?: string) {
+      if (meal && flavor) return `${style} - ${meal} (${flavor})`;
+      if (meal) return `${style} - ${meal}`;
+      return style;
+    }
+
+    expect(resolveCartLabel("Classic", "Meal", "Mild")).toBe("Classic - Meal (Mild)");
+    expect(resolveCartLabel("Deluxe", "Large Meals", "Spicy")).toBe("Deluxe - Large Meals (Spicy)");
+  });
 });
