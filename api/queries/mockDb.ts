@@ -729,6 +729,12 @@ export function createMockDb() {
             return Promise.resolve([]).then(resolve, reject);
           }
         },
+        catch(reject: any) {
+          return this.then(undefined, reject);
+        },
+        finally(onFinally: any) {
+          return Promise.resolve(this).finally(onFinally);
+        },
       };
 
       return builder;
@@ -781,6 +787,12 @@ export function createMockDb() {
         then(resolve: any, reject: any) {
           return Promise.resolve(insertedValues).then(resolve, reject);
         },
+        catch(reject: any) {
+          return this.then(undefined, reject);
+        },
+        finally(onFinally: any) {
+          return Promise.resolve(this).finally(onFinally);
+        },
       };
 
       return builder;
@@ -829,6 +841,12 @@ export function createMockDb() {
 
           return Promise.resolve(updatedItems).then(resolve, reject);
         },
+        catch(reject: any) {
+          return this.then(undefined, reject);
+        },
+        finally(onFinally: any) {
+          return Promise.resolve(this).finally(onFinally);
+        },
       };
 
       return builder;
@@ -850,6 +868,12 @@ export function createMockDb() {
             globalStore[tableKey] = tableStore.filter((item) => !matchFilter(item, filters));
           }
           return Promise.resolve([]).then(resolve, reject);
+        },
+        catch(reject: any) {
+          return this.then(undefined, reject);
+        },
+        finally(onFinally: any) {
+          return Promise.resolve(this).finally(onFinally);
         },
       };
 

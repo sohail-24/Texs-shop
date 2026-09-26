@@ -169,16 +169,27 @@ export async function migrateLocalImagesToDurable(): Promise<{
   const db = getDb();
 
   // Find all active products and their referenced images
-  const activeProducts = await db
-    .select({
-      id: products.id,
-      image: products.image,
-      images: products.images,
-      options: products.options,
-    })
-    .from(products)
-    .where(ne(products.status, "archived"))
-    .catch(() => []);
+  let activeProducts: Array<{
+    id: number;
+    image: string | null;
+    images: string | null;
+    options: string | null;
+  }> = [];
+
+  try {
+    activeProducts = await db
+      .select({
+        id: products.id,
+        image: products.image,
+        images: products.images,
+        options: products.options,
+      })
+      .from(products)
+      .where(ne(products.status, "archived"));
+  } catch (err) {
+    console.warn("[durable-images] Could not query active products for migration:", err);
+    activeProducts = [];
+  }
 
   const activeImageToProductId = new Map<string, number>();
 
