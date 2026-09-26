@@ -10,15 +10,17 @@ export async function findAllCategories(options?: { includeInactive?: boolean })
 }
 
 export async function findCategoryBySlug(slug: string) {
-  return getDb().query.categories.findFirst({
+  const result = await getDb().query.categories.findFirst({
     where: eq(categories.slug, slug),
   });
+  return result ?? undefined;
 }
 
 export async function findCategoryById(id: number) {
-  return getDb().query.categories.findFirst({
+  const result = await getDb().query.categories.findFirst({
     where: eq(categories.id, id),
   });
+  return result ?? undefined;
 }
 
 export async function createCategory(data: InsertCategory) {

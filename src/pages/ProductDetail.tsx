@@ -275,21 +275,21 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:gap-8 md:grid-cols-[460px_1fr] lg:grid-cols-[540px_1fr] items-start w-full min-w-0">
+      <section className="grid gap-6 lg:gap-8 md:grid-cols-[460px_1fr] lg:grid-cols-[520px_1fr] items-start w-full min-w-0">
         {/* 1. Product Main Image */}
         <div className="w-full max-w-full mx-auto overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-1 sm:p-1.5 shadow-xs">
-          <div className="relative flex aspect-square w-full min-h-[300px] sm:min-h-[380px] md:min-h-[460px] items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
+          <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card p-2 sm:p-3">
             {currentImage && !imageFailed ? (
               <img
                 key={currentImage}
                 src={resolveProductImageUrl(currentImage)}
                 alt={selectedOption?.name ? `${product.name} - ${selectedOption.name}` : product.name}
                 referrerPolicy="no-referrer"
-                className="w-full h-full object-cover transition-opacity duration-200 select-none"
+                className="max-h-full max-w-full w-full h-full object-contain transition-opacity duration-200 select-none"
                 onError={() => setImageFailed(true)}
               />
             ) : (
-              <Package className="h-20 w-20 text-muted-foreground/30" />
+              <Package className="h-24 w-24 text-muted-foreground/30" />
             )}
           </div>
         </div>
@@ -357,12 +357,12 @@ export default function ProductDetail() {
                             : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
                         }`}
                       >
-                        <div className="aspect-square w-full overflow-hidden bg-muted/30">
+                        <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden bg-muted/20 p-1 sm:p-1.5">
                           {optionImage ? (
                             <img
                               src={resolveProductImageUrl(optionImage)}
                               alt={`${product.name} - ${opt.name}`}
-                              className="h-full w-full object-cover"
+                              className="max-h-full max-w-full w-full h-full object-contain select-none"
                             />
                           ) : (
                             <div className="flex h-full w-full items-center justify-center">

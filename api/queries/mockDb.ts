@@ -89,7 +89,7 @@ export function createInitialStore(): MockStore {
       marketplaceVisible: true,
       showInFreshDeals: false,
       isFeatured: true,
-      displayPriority: 1,
+      displayPriority: 2,
       categoryName: "Sides",
       supplierName: "Tex’s Chicken & Burgers",
       stock: 100,
@@ -127,7 +127,7 @@ export function createInitialStore(): MockStore {
       marketplaceVisible: true,
       showInFreshDeals: false,
       isFeatured: false,
-      displayPriority: 2,
+      displayPriority: 3,
       categoryName: "Sides",
       supplierName: "Tex’s Chicken & Burgers",
       stock: 100,
@@ -165,7 +165,7 @@ export function createInitialStore(): MockStore {
       marketplaceVisible: true,
       showInFreshDeals: false,
       isFeatured: false,
-      displayPriority: 3,
+      displayPriority: 4,
       categoryName: "Sides",
       supplierName: "Tex’s Chicken & Burgers",
       stock: 100,
@@ -203,7 +203,7 @@ export function createInitialStore(): MockStore {
       marketplaceVisible: true,
       showInFreshDeals: false,
       isFeatured: false,
-      displayPriority: 4,
+      displayPriority: 1,
       categoryName: "Sides",
       supplierName: "Tex’s Chicken & Burgers",
       stock: 100,
@@ -714,6 +714,36 @@ export function createMockDb() {
                     order.relatedCompanyName ?? supplier?.name ?? buyer?.name ?? "Partner Company",
                   itemCount: order.itemCount ?? 1,
                 };
+              });
+            }
+
+            if (fromTableKey === "inventory") {
+              results = results.map((inv) => {
+                const prod = globalStore.products.find((p) => p.id === inv.productId);
+                return {
+                  ...inv,
+                  displayPriority: prod?.displayPriority ?? inv.displayPriority ?? 999999,
+                  productName: prod?.name ?? inv.productName,
+                };
+              });
+              results.sort((a, b) => {
+                const prioA = Number(a.displayPriority ?? 999999);
+                const prioB = Number(b.displayPriority ?? 999999);
+                if (prioA !== prioB) return prioA - prioB;
+                const nameA = String(a.productName || "");
+                const nameB = String(b.productName || "");
+                return nameA.localeCompare(nameB);
+              });
+            }
+
+            if (fromTableKey === "products") {
+              results.sort((a, b) => {
+                const prioA = Number(a.displayPriority ?? 999999);
+                const prioB = Number(b.displayPriority ?? 999999);
+                if (prioA !== prioB) return prioA - prioB;
+                const nameA = String(a.name || "");
+                const nameB = String(b.name || "");
+                return nameA.localeCompare(nameB);
               });
             }
 
