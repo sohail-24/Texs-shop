@@ -325,6 +325,14 @@ export default function AddProduct() {
             onlyPrice: opt.onlyPrice ? Number(opt.onlyPrice) : null,
             image: opt.image || null,
             includedWith: opt.includedWith?.trim() || null,
+            ...(opt.mealOptions?.label.trim() && opt.mealOptions.choices.map((choice) => choice.trim()).filter(Boolean).length > 0
+              ? {
+                  mealOptions: {
+                    label: opt.mealOptions.label.trim(),
+                    choices: opt.mealOptions.choices.map((choice) => choice.trim()).filter(Boolean),
+                  },
+                }
+              : {}),
             ...(opt.choiceGroup?.label.trim() && opt.choiceGroup.choices.map((choice) => choice.trim()).filter(Boolean).length > 0
               ? {
                   choiceGroup: {
