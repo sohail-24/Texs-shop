@@ -270,7 +270,7 @@ export default function ProductDetail() {
               <div className="flex items-center gap-x-2.5 gap-y-1.5 flex-wrap min-w-0 w-full">
                 <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-foreground shrink-0 whitespace-nowrap">
                   <Utensils className="h-4 w-4 text-emerald-600 shrink-0" />
-                  Select Option
+                  Choose Style
                 </span>
                 <span className="text-[11px] sm:text-xs font-normal text-destructive shrink-0 whitespace-nowrap">
                   • Required
@@ -282,10 +282,10 @@ export default function ProductDetail() {
                 )}
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full min-w-0">
+              <div className="grid grid-cols-2 min-[360px]:grid-cols-3 gap-2 sm:gap-2.5 w-full min-w-0">
                 {productOptions.map((opt) => {
                   const isSelected = selectedOption?.id === opt.id;
-                  const displayOptPrice = opt.mealPrice || opt.price;
+                  const optionImage = opt.image || product.image;
                   return (
                     <button
                       key={opt.id}
@@ -296,82 +296,44 @@ export default function ProductDetail() {
                         else if (opt.onlyPrice && !opt.mealPrice) setSelectedPricingMode("only");
                         else if (!opt.mealPrice && !opt.onlyPrice) setSelectedPricingMode("standard");
                       }}
-                      className={`w-full min-w-0 flex items-center justify-between p-3 rounded-lg border text-left transition-all ${
+                      className={`min-w-0 overflow-hidden rounded-lg border text-left transition-all ${
                         isSelected
                           ? "border-emerald-600 bg-emerald-50/70 dark:bg-emerald-950/40 text-emerald-950 dark:text-emerald-100 ring-2 ring-emerald-500/20 shadow-sm"
                           : "border-border bg-card hover:border-muted-foreground/30 hover:bg-muted/30"
                       }`}
                     >
-                      <div className="flex items-center gap-2.5 min-w-0 flex-1 mr-2">
+                      <div className="aspect-square w-full overflow-hidden bg-muted/30">
+                        {optionImage ? (
+                          <img
+                            src={resolveProductImageUrl(optionImage)}
+                            alt={`${product.name} - ${opt.name}`}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <Package className="h-7 w-7 text-muted-foreground/35" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1.5 p-2 min-w-0">
                         <div
-                          className={`h-4 w-4 rounded-full border flex items-center justify-center shrink-0 ${
-                            isSelected
-                              ? "border-emerald-600 bg-emerald-600 text-white"
-                              : "border-muted-foreground/40"
+                          className={`h-3.5 w-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                            isSelected ? "border-emerald-600 bg-emerald-600 text-white" : "border-muted-foreground/40"
                           }`}
                         >
-                          {isSelected && <Check className="h-2.5 w-2.5 stroke-[3]" />}
+                          {isSelected && <Check className="h-2 w-2 stroke-[3]" />}
                         </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-sm text-foreground leading-tight break-words">{opt.name}</p>
-                          {opt.includedWith ? (
-                            <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-medium mt-0.5 line-clamp-1 break-words">
-                              {opt.includedWith}
-                            </p>
-                          ) : null}
-                          {opt.mealPrice && opt.onlyPrice ? (
-                            <p className="text-[11px] text-muted-foreground mt-0.5">Meal & Only available</p>
-                          ) : null}
-                        </div>
-                      </div>
-                      <div className="text-right pl-2 shrink-0">
-                        <p className="text-sm font-bold text-emerald-700 dark:text-emerald-400 whitespace-nowrap">
-                          {formatCurrency(displayOptPrice)}
-                        </p>
-                        {opt.compareAtPrice && opt.compareAtPrice > displayOptPrice && (
-                          <p className="text-[11px] text-muted-foreground line-through whitespace-nowrap">
-                            {formatCurrency(opt.compareAtPrice)}
-                          </p>
-                        )}
+                        <p className="min-w-0 line-clamp-2 break-words text-xs sm:text-sm font-semibold leading-tight text-foreground">{opt.name}</p>
                       </div>
                     </button>
                   );
                 })}
               </div>
 
-              {choiceGroup && (
-                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <p className="text-xs sm:text-sm font-semibold text-foreground">{choiceGroup.label}</p>
-                    <span className="text-[11px] sm:text-xs font-normal text-destructive">• Required</span>
-                  </div>
-                  <div className="mt-2 flex flex-wrap gap-2 w-full min-w-0">
-                    {choiceGroup.choices.map((choice) => {
-                      const isSelected = selectedChoice === choice;
-                      return (
-                        <button
-                          key={choice}
-                          type="button"
-                          aria-pressed={isSelected}
-                          onClick={() => setSelectedChoice(choice)}
-                          className={`min-w-0 rounded-md border px-3 py-2 text-xs font-semibold transition-all ${
-                            isSelected
-                              ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
-                              : "border-border bg-card text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          {choice}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
               {/* Meal vs Only Toggle if Selected Option Offers Both */}
               {selectedOption && (selectedOption.mealPrice || selectedOption.onlyPrice) && (
                 <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Pricing Structure:</p>
+                  <p className="text-xs sm:text-sm font-semibold text-foreground mb-2">Select Option <span className="font-normal text-destructive">• Required</span></p>
                   <div className="grid grid-cols-2 gap-2 w-full min-w-0">
                     {selectedOption.onlyPrice != null && (
                       <button
@@ -399,6 +361,36 @@ export default function ProductDetail() {
                         Combo Meal: {formatCurrency(selectedOption.mealPrice)}
                       </button>
                     )}
+                  </div>
+                </div>
+              )}
+
+              {choiceGroup && (
+                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">{choiceGroup.label}</p>
+                    <span className="text-[11px] sm:text-xs font-normal text-destructive">• Required</span>
+                  </div>
+                  <p className="mt-1 text-[11px] text-muted-foreground">Select one</p>
+                  <div className="mt-2 flex flex-wrap gap-2 w-full min-w-0">
+                    {choiceGroup.choices.map((choice) => {
+                      const isSelected = selectedChoice === choice;
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => setSelectedChoice(choice)}
+                          className={`min-w-0 rounded-md border px-3 py-2 text-xs font-semibold transition-all ${
+                            isSelected
+                              ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+                              : "border-border bg-card text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
               )}

@@ -170,7 +170,7 @@ export function ProductOptionsEditor({
             onClick={() => applyPreset("sandwich")}
             className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
           >
-            Sandwiches (Classic, Deluxe)
+            Sandwiches (Classic, Deluxe, Grilled)
           </button>
           <button
             type="button"
