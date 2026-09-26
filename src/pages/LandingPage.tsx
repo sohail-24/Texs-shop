@@ -321,20 +321,11 @@ export default function LandingPage() {
           </nav>
         </div>
 
-        {/* Bottom Footer: Good Food Brings Good People & Halal */}
-        <div className="shrink-0 p-1.5 xs:p-2 pt-2 border-t border-emerald-800/60 flex flex-col items-center text-center gap-1 pb-2">
+        {/* Bottom Footer: Good Food Brings Good People */}
+        <div className="shrink-0 p-1.5 xs:p-2 pt-2.5 border-t border-emerald-800/60 flex flex-col items-center text-center pb-2.5">
           <div className="text-[9px] xs:text-[10px] italic text-emerald-200 font-medium leading-tight">
             <p>Good Food</p>
             <p>Brings Good People</p>
-          </div>
-          <div className="inline-flex flex-col items-center gap-0.5 rounded-md bg-[#042d22] border border-amber-400/40 px-1.5 py-0.5 text-amber-300 shadow-xs">
-            <div className="flex items-center gap-1 text-[8.5px] xs:text-[9px] font-bold">
-              <span className="text-amber-400 text-[10px]">☪</span>
-              <span>HALAL</span>
-            </div>
-            <span className="text-[7px] xs:text-[7.5px] font-semibold text-emerald-300 uppercase tracking-wider">
-              CERTIFIED HALAL
-            </span>
           </div>
         </div>
       </aside>
@@ -409,15 +400,11 @@ export default function LandingPage() {
           </nav>
         </div>
 
-        {/* Bottom Footer: Good Food Brings Good People & Halal */}
-        <div className="shrink-0 pt-3.5 border-t border-emerald-800/60 flex flex-col items-center text-center gap-2">
+        {/* Bottom Footer: Good Food Brings Good People */}
+        <div className="shrink-0 pt-3.5 pb-1 border-t border-emerald-800/60 flex flex-col items-center text-center">
           <p className="text-xs lg:text-sm italic text-emerald-200/90 font-medium">
             &ldquo;Good Food Brings Good People&rdquo;
           </p>
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-950/90 border border-amber-400/40 px-3 py-1 text-[11px] font-bold text-amber-300 shadow-xs">
-            <span className="text-amber-400 text-xs">☪</span>
-            <span>HALAL • CERTIFIED HALAL</span>
-          </div>
         </div>
       </aside>
 
