@@ -46,28 +46,6 @@ export function getPresetOptions(presetName: string, basePrice?: number | string
     presetOptions = [
       { id: nanoid(6), name: "Regular Order", price: 7.99, mealPrice: 10.99, onlyPrice: 7.99 },
     ];
-  } else if (presetName === "mild") {
-    const defaultPrice = toNumber(basePrice) > 0 ? toNumber(basePrice) : 7.99;
-    presetOptions = [
-      {
-        id: nanoid(6),
-        name: "Mild",
-        price: defaultPrice,
-        mealPrice: Number((defaultPrice + 3).toFixed(2)),
-        onlyPrice: defaultPrice,
-      },
-    ];
-  } else if (presetName === "spicy") {
-    const defaultPrice = toNumber(basePrice) > 0 ? toNumber(basePrice) : 7.99;
-    presetOptions = [
-      {
-        id: nanoid(6),
-        name: "Spicy",
-        price: defaultPrice,
-        mealPrice: Number((defaultPrice + 3).toFixed(2)),
-        onlyPrice: defaultPrice,
-      },
-    ];
   }
   return presetOptions;
 }
@@ -207,20 +185,6 @@ export function ProductOptionsEditor({
             className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
           >
             Meal vs Only
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset("mild")}
-            className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
-          >
-            Mild
-          </button>
-          <button
-            type="button"
-            onClick={() => applyPreset("spicy")}
-            className="text-[11px] bg-muted/60 hover:bg-muted text-foreground px-2 py-0.5 rounded border border-border transition-colors"
-          >
-            Spicy
           </button>
         </div>
       </CardHeader>
@@ -462,6 +426,94 @@ export function ProductOptionsEditor({
                             />
                           </div>
                         </div>
+                      </div>
+
+                      <div className="rounded-md border border-dashed border-border/80 bg-muted/15 p-3 space-y-2">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div>
+                            <Label className="text-[11px] font-bold text-foreground">Choice Group</Label>
+                            <p className="text-[10px] text-muted-foreground">Optional customer choice for this option. It does not change variant pricing.</p>
+                          </div>
+                          {opt.choiceGroup ? (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 px-2 text-[11px] text-destructive hover:text-destructive"
+                              onClick={() => updateOption(opt.id, { choiceGroup: undefined })}
+                            >
+                              Remove Choice Group
+                            </Button>
+                          ) : (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-7 px-2 text-[11px]"
+                              onClick={() => updateOption(opt.id, { choiceGroup: { label: "", choices: [""] } })}
+                            >
+                              <Plus className="mr-1 h-3 w-3" /> Add Choice Group
+                            </Button>
+                          )}
+                        </div>
+
+                        {opt.choiceGroup && (
+                          <div className="space-y-2 pt-1">
+                            <div>
+                              <Label className="text-[11px] font-medium text-foreground">Choice Group Label</Label>
+                              <Input
+                                value={opt.choiceGroup.label}
+                                onChange={(e) => updateOption(opt.id, {
+                                  choiceGroup: { ...opt.choiceGroup!, label: e.target.value },
+                                })}
+                                placeholder="e.g. Spice Level"
+                                className="mt-1 h-8 text-xs"
+                              />
+                            </div>
+                            <div className="space-y-1.5">
+                              <Label className="text-[11px] font-medium text-foreground">Choices</Label>
+                              {opt.choiceGroup.choices.map((choice, choiceIndex) => (
+                                <div key={choiceIndex} className="flex gap-2">
+                                  <Input
+                                    value={choice}
+                                    onChange={(e) => {
+                                      const choices = [...opt.choiceGroup!.choices];
+                                      choices[choiceIndex] = e.target.value;
+                                      updateOption(opt.id, { choiceGroup: { ...opt.choiceGroup!, choices } });
+                                    }}
+                                    placeholder="e.g. Mild"
+                                    className="h-8 text-xs"
+                                  />
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-8 px-2 text-[11px] text-destructive hover:text-destructive"
+                                    onClick={() => updateOption(opt.id, {
+                                      choiceGroup: {
+                                        ...opt.choiceGroup!,
+                                        choices: opt.choiceGroup!.choices.filter((_, index) => index !== choiceIndex),
+                                      },
+                                    })}
+                                  >
+                                    Remove
+                                  </Button>
+                                </div>
+                              ))}
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                className="h-7 px-2 text-[11px]"
+                                onClick={() => updateOption(opt.id, {
+                                  choiceGroup: { ...opt.choiceGroup!, choices: [...opt.choiceGroup!.choices, ""] },
+                                })}
+                              >
+                                <Plus className="mr-1 h-3 w-3" /> Add Choice
+                              </Button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

@@ -1,6 +1,11 @@
 export type * from "../db/schema";
 export * from "./errors";
 
+export type ProductOptionChoiceGroup = {
+  label: string;
+  choices: string[];
+};
+
 export type ProductOption = {
   id: string;
   name: string;
@@ -10,6 +15,7 @@ export type ProductOption = {
   onlyPrice?: number | null;
   image?: string | null;
   includedWith?: string | null;
+  choiceGroup?: ProductOptionChoiceGroup;
 };
 
 export const ProductOption = {} as unknown as ProductOption;
@@ -29,6 +35,13 @@ export function parseProductOptions(value?: unknown): ProductOption[] {
         const compareAtPrice = item.compareAtPrice != null && Number(item.compareAtPrice) > 0 ? Number(item.compareAtPrice) : null;
         const image = typeof item.image === "string" && item.image.trim() ? item.image.trim() : null;
         const includedWith = typeof item.includedWith === "string" && item.includedWith.trim() ? item.includedWith.trim() : null;
+        const choiceGroupLabel = typeof item.choiceGroup?.label === "string" ? item.choiceGroup.label.trim() : "";
+        const choiceGroupChoices = Array.isArray(item.choiceGroup?.choices)
+          ? item.choiceGroup.choices.filter((choice: unknown): choice is string => typeof choice === "string").map((choice: string) => choice.trim()).filter(Boolean)
+          : [];
+        const choiceGroup = choiceGroupLabel && choiceGroupChoices.length > 0
+          ? { label: choiceGroupLabel, choices: choiceGroupChoices }
+          : undefined;
         
         if (!name && price <= 0 && !mealPrice && !onlyPrice) return null;
 
@@ -41,6 +54,7 @@ export function parseProductOptions(value?: unknown): ProductOption[] {
           onlyPrice,
           image,
           includedWith,
+          choiceGroup,
         } as ProductOption;
       })
       .filter((opt): opt is ProductOption => opt !== null);
@@ -48,4 +62,3 @@ export function parseProductOptions(value?: unknown): ProductOption[] {
     return [];
   }
 }
-

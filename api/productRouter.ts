@@ -62,6 +62,10 @@ const productOptionSchema = z.object({
   onlyPrice: z.number().min(0).optional().nullable(),
   image: z.string().trim().max(2048).optional().nullable(),
   includedWith: z.string().trim().max(500).optional().nullable(),
+  choiceGroup: z.object({
+    label: z.string().trim().min(1, "Choice group label is required.").max(100),
+    choices: z.array(z.string().trim().min(1, "Choice is required.").max(100)).min(1),
+  }).optional(),
 });
 
 const productMutationSchema = z.object({
