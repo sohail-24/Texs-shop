@@ -275,21 +275,21 @@ export default function ProductDetail() {
         </div>
       </section>
 
-      <section className="grid gap-6 lg:gap-8 lg:grid-cols-[330px_1fr] w-full min-w-0">
+      <section className="grid gap-6 lg:gap-8 md:grid-cols-[460px_1fr] lg:grid-cols-[540px_1fr] items-start w-full min-w-0">
         {/* 1. Product Main Image */}
-        <div className="w-full max-w-[290px] sm:max-w-[330px] mx-auto lg:max-w-none overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-3 sm:p-4 shadow-xs">
-          <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
+        <div className="w-full max-w-full mx-auto overflow-hidden rounded-2xl border border-border/80 bg-white dark:bg-card p-1 sm:p-1.5 shadow-xs">
+          <div className="relative flex aspect-square w-full min-h-[300px] sm:min-h-[380px] md:min-h-[460px] items-center justify-center overflow-hidden rounded-xl bg-white dark:bg-card">
             {currentImage && !imageFailed ? (
               <img
                 key={currentImage}
                 src={resolveProductImageUrl(currentImage)}
                 alt={selectedOption?.name ? `${product.name} - ${selectedOption.name}` : product.name}
                 referrerPolicy="no-referrer"
-                className="max-h-full max-w-full h-auto w-auto object-contain transition-opacity duration-200 select-none"
+                className="w-full h-full object-cover transition-opacity duration-200 select-none"
                 onError={() => setImageFailed(true)}
               />
             ) : (
-              <Package className="h-16 w-16 text-muted-foreground/30" />
+              <Package className="h-20 w-20 text-muted-foreground/30" />
             )}
           </div>
         </div>
@@ -312,34 +312,10 @@ export default function ProductDetail() {
                 )}
               </div>
             </div>
-            {activeIncludedWith && (
-              <p className="mt-1 text-sm sm:text-base font-normal text-muted-foreground break-words min-w-0">
-                {activeIncludedWith}
-              </p>
-            )}
-            <p className="mt-1 text-xs text-muted-foreground/80 break-words min-w-0">
-              by {product.supplierName ?? "Tex’s Chicken & Burgers"}
-            </p>
-          </div>
-
-          {/* 3. Product Information */}
-          <div className="grid gap-2 text-xs sm:text-sm text-muted-foreground grid-cols-1 sm:grid-cols-2 w-full min-w-0 pt-0.5">
-            <p className="break-words min-w-0">
-              <span className="font-medium text-foreground">Serving / Portion:</span>{" "}
-              {resolvedOptionLabel || product.unitSize || "1 Order"}
-            </p>
-            <p className="break-words min-w-0">
-              <span className="font-medium text-foreground">Category:</span>{" "}
-              {product.categoryName ?? "Halal Food"}
-            </p>
-            {product.origin && (
-              <p className="break-words min-w-0">
-                <span className="font-medium text-foreground">Style / Recipe:</span> {product.origin}
-              </p>
-            )}
-            {product.season && (
-              <p className="break-words min-w-0">
-                <span className="font-medium text-foreground">Served With:</span> {product.season}
+            {/* 3. Product description / What Comes With It */}
+            {(activeIncludedWith || product.description) && (
+              <p className="mt-1.5 text-sm sm:text-base font-normal text-muted-foreground break-words min-w-0">
+                {activeIncludedWith || product.description}
               </p>
             )}
           </div>
