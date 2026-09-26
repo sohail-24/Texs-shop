@@ -21,6 +21,7 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [selectedOptionId, setSelectedOptionId] = useState<string>("");
   const [selectedPricingMode, setSelectedPricingMode] = useState<"standard" | "meal" | "only">("standard");
+  const [selectedChoice, setSelectedChoice] = useState<string>("");
 
   const { data, isLoading, isError, error } = trpc.product.bySlug.useQuery({ slug: slug! }, { enabled: !!slug, retry: false });
   const relatedQuery = trpc.product.featured.useQuery({ limit: 5 }, { retry: false });
@@ -58,6 +59,12 @@ export default function ProductDetail() {
     if (!hasOptions) return null;
     return productOptions.find((opt) => opt.id === selectedOptionId) || productOptions[0];
   }, [hasOptions, productOptions, selectedOptionId]);
+
+  const choiceGroup = selectedOption?.choiceGroup;
+
+  useEffect(() => {
+    setSelectedChoice("");
+  }, [selectedOption?.id]);
 
   const activeIncludedWith = useMemo(() => {
     if (hasOptions) {
@@ -171,6 +178,10 @@ export default function ProductDetail() {
     }
     if (hasOptions && !resolvedOptionLabel) {
       toast.error("Please select an option before adding to cart.");
+      return;
+    }
+    if (choiceGroup && !selectedChoice) {
+      toast.error(`Please select ${choiceGroup.label}.`);
       return;
     }
 
@@ -327,6 +338,35 @@ export default function ProductDetail() {
                   );
                 })}
               </div>
+
+              {choiceGroup && (
+                <div className="mt-2 pt-3 border-t border-border/60 w-full min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs sm:text-sm font-semibold text-foreground">{choiceGroup.label}</p>
+                    <span className="text-[11px] sm:text-xs font-normal text-destructive">• Required</span>
+                  </div>
+                  <div className="mt-2 flex flex-wrap gap-2 w-full min-w-0">
+                    {choiceGroup.choices.map((choice) => {
+                      const isSelected = selectedChoice === choice;
+                      return (
+                        <button
+                          key={choice}
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={() => setSelectedChoice(choice)}
+                          className={`min-w-0 rounded-md border px-3 py-2 text-xs font-semibold transition-all ${
+                            isSelected
+                              ? "border-emerald-600 bg-emerald-600 text-white shadow-sm"
+                              : "border-border bg-card text-foreground hover:bg-muted"
+                          }`}
+                        >
+                          {choice}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Meal vs Only Toggle if Selected Option Offers Both */}
               {selectedOption && (selectedOption.mealPrice || selectedOption.onlyPrice) && (
