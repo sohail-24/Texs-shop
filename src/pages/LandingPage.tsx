@@ -612,7 +612,7 @@ export default function LandingPage() {
             >
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <h2 className="text-sm xs:text-base sm:text-xl md:text-2xl font-extrabold tracking-tight text-slate-900 leading-tight">
-                  Fresh Halal Products
+                  Tex’s Chicken & Burgers
                 </h2>
                 {selectedNavItem.key !== "all" && (
                   <span className="inline-flex items-center rounded-md bg-emerald-100 px-1.5 py-0.5 text-[10px] sm:text-xs font-bold text-emerald-800">
